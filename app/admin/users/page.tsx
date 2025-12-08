@@ -1,0 +1,208 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Search, CheckCircle, Shield, Trash2 } from "lucide-react"
+import { useAdminAuth } from "@/hooks/use-admin-auth"
+
+interface User {
+  id: number
+  name: string
+  email: string
+  role: string
+  is_verified: boolean
+  created_at: string
+}
+
+export default function UsersPage() {
+  const { isAuthenticated, authLoading } = useAdminAuth()
+  const [users, setUsers] = useState<User[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!isAuthenticated || authLoading) return
+
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem("adminToken")
+        const response = await fetch("/api/admin/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setUsers(data.users || [])
+          setFilteredUsers(data.users || [])
+        } else {
+          console.error("[v0] Failed to fetch users")
+        }
+      } catch (error) {
+        console.error("[v0] Users fetch error:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [isAuthenticated, authLoading])
+
+  useEffect(() => {
+    const filtered = users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    setFilteredUsers(filtered)
+  }, [searchTerm, users])
+
+  const verifyUser = async (id: number) => {
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch(`/api/admin/users/${id}/verify`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ is_verified: true }),
+      })
+
+      if (response.ok) {
+        setUsers(users.map((user) => (user.id === id ? { ...user, is_verified: true } : user)))
+      }
+    } catch (error) {
+      console.error("[v0] Verify user error:", error)
+    }
+  }
+
+  const suspendUser = async (id: number) => {
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch(`/api/admin/users/${id}/suspend`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (response.ok) {
+        setUsers(users.filter((user) => user.id !== id))
+      }
+    } catch (error) {
+      console.error("[v0] Suspend user error:", error)
+    }
+  }
+
+  const deleteUser = async (id: number) => {
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        setUsers(users.filter((user) => user.id !== id))
+      }
+    } catch (error) {
+      console.error("[v0] Delete user error:", error)
+    }
+  }
+
+  const getStatusBadge = (isVerified: boolean) => {
+    return isVerified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+  }
+
+  if (loading || authLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <p className="text-muted-foreground">Loading users...</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-card-foreground">User Management</h1>
+        <div className="flex gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 text-muted-foreground" size={18} />
+            <Input
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+        </div>
+      </div>
+
+      <Card className="overflow-hidden bg-card border border-border">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-muted border-b border-border">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Name</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Email</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Role</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Joined</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filteredUsers.map((user) => (
+                <tr key={user.id} className="hover:bg-muted/50 transition-colors">
+                  <td className="px-6 py-3 text-sm text-card-foreground">{user.name}</td>
+                  <td className="px-6 py-3 text-sm text-card-foreground">{user.email}</td>
+                  <td className="px-6 py-3 text-sm text-muted-foreground">{user.role}</td>
+                  <td className="px-6 py-3 text-sm">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(user.is_verified)}`}>
+                      {user.is_verified ? "verified" : "pending"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-3 text-sm text-muted-foreground">
+                    {new Date(user.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-3">
+                    <div className="flex gap-2">
+                      {!user.is_verified && (
+                        <Button size="sm" variant="outline" onClick={() => verifyUser(user.id)} className="gap-2">
+                          <CheckCircle size={16} />
+                          Verify
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => suspendUser(user.id)}
+                        className="gap-2 text-orange-600 hover:text-orange-700"
+                      >
+                        <Shield size={16} />
+                        Suspend
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => deleteUser(user.id)} className="gap-2">
+                        <Trash2 size={16} />
+                        Delete
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  )
+}
