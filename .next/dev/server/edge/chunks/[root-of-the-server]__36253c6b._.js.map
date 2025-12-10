@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/sc/CineMarathi/cinemarathi-api/middleware.ts"],"sourcesContent":["import { NextResponse } from \"next/server\"\nimport type { NextRequest } from \"next/server\"\n\nexport function middleware(request: NextRequest) {\n  // Client-side layout handles authentication via localStorage\n  // This middleware just allows all requests through\n  return NextResponse.next()\n}\n\nexport const config = {\n  matcher: [\"/admin/:path*\"],\n}\n\n"],"names":[],"mappings":";;;;;;AAAA;AAAA;;AAGO,SAAS,WAAW,OAAoB;IAC7C,6DAA6D;IAC7D,mDAAmD;IACnD,OAAO,2OAAY,CAAC,IAAI;AAC1B;AAEO,MAAM,SAAS;IACpB,SAAS;QAAC;KAAgB;AAC5B"}}]
+}

@@ -8,20 +8,31 @@ router.get("/profile", verifyToken, async (req, res) => {
   try {
     const connection = await pool.getConnection()
 
+    // Use user_type instead of role, contact instead of phone
     const [users] = await connection.execute(
-      "SELECT id, name, email, phone, role, gender, is_verified FROM users WHERE id = ?",
+      `SELECT id, name, email, contact, user_type, gender, dob, location, 
+       bio, portfolio_url, availability, is_verified, created_at 
+       FROM users WHERE id = ?`,
       [req.user.id],
     )
 
+    if (users.length === 0) {
+      connection.release()
+      return res.status(404).json({ error: "User not found" })
+    }
+
+    const user = users[0]
+    const userType = user.user_type || req.user.role
+
     // Get role-specific data
     let roleData = null
-    if (req.user.role === "actor") {
+    if (userType === "actor") {
       const [actorData] = await connection.execute("SELECT * FROM actors WHERE user_id = ?", [req.user.id])
       roleData = actorData[0]
-    } else if (req.user.role === "technician") {
+    } else if (userType === "technician") {
       const [techData] = await connection.execute("SELECT * FROM technicians WHERE user_id = ?", [req.user.id])
       roleData = techData[0]
-    } else if (req.user.role === "production_house") {
+    } else if (userType === "production_house") {
       const [prodData] = await connection.execute("SELECT * FROM production_houses WHERE user_id = ?", [req.user.id])
       roleData = prodData[0]
     }
@@ -29,7 +40,10 @@ router.get("/profile", verifyToken, async (req, res) => {
     connection.release()
 
     res.json({
-      user: users[0],
+      user: {
+        ...user,
+        role: user.user_type, // Include role alias for backward compatibility
+      },
       roleData,
     })
   } catch (error) {
@@ -39,14 +53,66 @@ router.get("/profile", verifyToken, async (req, res) => {
 
 router.put("/profile", verifyToken, async (req, res) => {
   try {
-    const { name, phone } = req.body
+    const { 
+      name, 
+      contact, 
+      gender, 
+      dob, 
+      location, 
+      bio, 
+      portfolio_url, 
+      availability 
+    } = req.body
+    
     const connection = await pool.getConnection()
 
-    await connection.execute("UPDATE users SET name = ?, phone = ? WHERE id = ?", [
-      name || null,
-      phone || null,
-      req.user.id,
-    ])
+    // Build dynamic update query based on provided fields
+    const updates = []
+    const values = []
+    
+    if (name !== undefined) {
+      updates.push("name = ?")
+      values.push(name)
+    }
+    if (contact !== undefined) {
+      updates.push("contact = ?")
+      values.push(contact)
+    }
+    if (gender !== undefined) {
+      updates.push("gender = ?")
+      values.push(gender)
+    }
+    if (dob !== undefined) {
+      updates.push("dob = ?")
+      values.push(dob)
+    }
+    if (location !== undefined) {
+      updates.push("location = ?")
+      values.push(location)
+    }
+    if (bio !== undefined) {
+      updates.push("bio = ?")
+      values.push(bio)
+    }
+    if (portfolio_url !== undefined) {
+      updates.push("portfolio_url = ?")
+      values.push(portfolio_url)
+    }
+    if (availability !== undefined) {
+      updates.push("availability = ?")
+      values.push(availability)
+    }
+
+    if (updates.length === 0) {
+      connection.release()
+      return res.status(400).json({ error: "No fields to update" })
+    }
+
+    values.push(req.user.id)
+    await connection.execute(
+      `UPDATE users SET ${updates.join(", ")} WHERE id = ?`,
+      values
+    )
 
     connection.release()
 
@@ -61,7 +127,7 @@ router.get("/actors/:id", async (req, res) => {
     const connection = await pool.getConnection()
 
     const [actor] = await connection.execute(
-      'SELECT u.*, a.* FROM users u LEFT JOIN actors a ON u.id = a.user_id WHERE u.id = ? AND u.role = "actor"',
+      'SELECT u.*, a.* FROM users u LEFT JOIN actors a ON u.id = a.user_id WHERE u.id = ? AND u.user_type = "actor"',
       [req.params.id],
     )
 
@@ -106,7 +172,7 @@ router.put("/actors/profile", verifyToken, async (req, res) => {
 router.get("/actors", async (req, res) => {
   try {
     const { category, gender } = req.query
-    let query = 'SELECT u.*, a.* FROM users u LEFT JOIN actors a ON u.id = a.user_id WHERE u.role = "actor"'
+    let query = 'SELECT u.*, a.* FROM users u LEFT JOIN actors a ON u.id = a.user_id WHERE u.user_type = "actor"'
     const params = []
 
     if (category) {

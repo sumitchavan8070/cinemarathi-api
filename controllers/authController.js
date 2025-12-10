@@ -8,7 +8,7 @@ const generateToken = (user) => {
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role,
+      role: user.user_type || user.role, // Support both user_type and role
       is_verified: user.is_verified,
     },
     process.env.JWT_SECRET || "your_secret_key",
@@ -18,10 +18,22 @@ const generateToken = (user) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone, role, gender } = req.body
+    const { 
+      name, 
+      email, 
+      password, 
+      user_type, 
+      gender, 
+      dob, 
+      location, 
+      contact, 
+      bio, 
+      portfolio_url, 
+      availability 
+    } = req.body
 
-    if (!name || !email || !password || !role) {
-      return res.status(400).json({ error: "Missing required fields" })
+    if (!name || !email || !password || !user_type) {
+      return res.status(400).json({ error: "Missing required fields: name, email, password, and user_type are required" })
     }
 
     const connection = await pool.getConnection()
@@ -37,25 +49,80 @@ const register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Create user
+    // Create user with all fields from schema
     const [result] = await connection.execute(
-      "INSERT INTO users (name, email, password, phone, role, gender) VALUES (?, ?, ?, ?, ?, ?)",
-      [name, email, hashedPassword, phone || null, role, gender || null],
+      `INSERT INTO users (
+        name, email, password_hash, user_type, gender, dob, 
+        location, contact, bio, portfolio_url, availability, is_verified
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        name,
+        email,
+        hashedPassword,
+        user_type,
+        gender || null,
+        dob || null,
+        location || null,
+        contact || null,
+        bio || null,
+        portfolio_url || null,
+        availability || null,
+        0 // is_verified defaults to 0
+      ]
     )
+
+    const userId = result.insertId
+
+    // Create default subscription with plan_id 6
+    try {
+      // Get plan details to calculate subscription end date
+      const [plans] = await connection.execute(
+        "SELECT * FROM premium_plans WHERE id = ?",
+        [6]
+      )
+
+      if (plans.length > 0) {
+        const plan = plans[0]
+        const subscriptionStart = new Date()
+        // Calculate end date based on duration_days if available, otherwise set to 1 year
+        const durationDays = plan.duration_days || 365
+        const subscriptionEnd = new Date(subscriptionStart.getTime() + durationDays * 24 * 60 * 60 * 1000)
+
+        await connection.execute(
+          `INSERT INTO user_subscriptions (user_id, plan_id, subscription_start, subscription_end, is_active)
+           VALUES (?, ?, ?, ?, ?)`,
+          [userId, 6, subscriptionStart, subscriptionEnd, true]
+        )
+      } else {
+        // If plan_id 6 doesn't exist, create subscription with default 1 year duration
+        const subscriptionStart = new Date()
+        const subscriptionEnd = new Date(subscriptionStart.getTime() + 365 * 24 * 60 * 60 * 1000)
+        
+        await connection.execute(
+          `INSERT INTO user_subscriptions (user_id, plan_id, subscription_start, subscription_end, is_active)
+           VALUES (?, ?, ?, ?, ?)`,
+          [userId, 6, subscriptionStart, subscriptionEnd, true]
+        )
+      }
+    } catch (subscriptionError) {
+      // Log error but don't fail registration if subscription creation fails
+      console.error("Error creating default subscription:", subscriptionError.message)
+      // Continue with registration even if subscription fails
+    }
 
     connection.release()
 
     const token = generateToken({
-      id: result.insertId,
+      id: userId,
       email,
       name,
-      role,
+      user_type,
       is_verified: false,
     })
 
     res.status(201).json({
       message: "User registered successfully",
-      userId: result.insertId,
+      userId: userId,
       token,
     })
   } catch (error) {
@@ -73,6 +140,7 @@ const login = async (req, res) => {
 
     const connection = await pool.getConnection()
 
+    // Try both password and password_hash column names
     const [users] = await connection.execute("SELECT * FROM users WHERE email = ?", [email])
 
     connection.release()
@@ -82,7 +150,20 @@ const login = async (req, res) => {
     }
 
     const user = users[0]
-    const passwordMatch = await bcrypt.compare(password, user.password)
+    
+    // Check for password in either 'password' or 'password_hash' column
+    const userPassword = user.password || user.password_hash
+    
+    if (!userPassword) {
+      console.error(`Login attempt for ${email}: User found but no password field exists`)
+      return res.status(401).json({ error: "Invalid credentials - no password set for user" })
+    }
+
+    const passwordMatch = await bcrypt.compare(password, userPassword)
+    
+    if (!passwordMatch) {
+      console.error(`Login attempt for ${email}: Password mismatch`)
+    }
 
     if (!passwordMatch) {
       return res.status(401).json({ error: "Invalid credentials" })
@@ -98,7 +179,7 @@ const login = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: user.user_type || user.role, // Support both user_type and role
       },
     })
   } catch (error) {

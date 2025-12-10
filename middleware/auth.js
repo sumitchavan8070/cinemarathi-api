@@ -14,7 +14,8 @@ const verifyToken = (req, res, next) => {
       id: decoded.id,
       email: decoded.email,
       name: decoded.name,
-      role: decoded.role,
+      role: decoded.role || decoded.user_type, // Support both role and user_type
+      user_type: decoded.role || decoded.user_type, // Add user_type for consistency
       is_verified: decoded.is_verified,
     }
 

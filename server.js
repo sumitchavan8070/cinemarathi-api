@@ -28,6 +28,33 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// Request logging middleware
+app.use((req, res, next) => {
+  const start = Date.now()
+  
+  // Log request
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`)
+  
+  // Log body if it exists and is not empty
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0 && req.method !== 'GET') {
+    console.log('  Body:', JSON.stringify(req.body, null, 2))
+  }
+  
+  // Log query params if they exist
+  if (req.query && typeof req.query === 'object' && Object.keys(req.query).length > 0) {
+    console.log('  Query:', req.query)
+  }
+  
+  // Log response when finished
+  res.on('finish', () => {
+    const duration = Date.now() - start
+    const statusColor = res.statusCode >= 400 ? '\x1b[31m' : res.statusCode >= 300 ? '\x1b[33m' : '\x1b[32m'
+    console.log(`  ${statusColor}${res.statusCode}\x1b[0m - ${duration}ms`)
+  })
+  
+  next()
+})
+
 app.use((req, res, next) => {
   req.db = pool
   next()
