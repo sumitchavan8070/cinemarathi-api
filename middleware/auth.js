@@ -26,7 +26,8 @@ const verifyToken = (req, res, next) => {
 }
 
 const isAdmin = (req, res, next) => {
-  if (req.user?.role !== "admin") {
+  const userRole = req.user?.role || req.user?.user_type
+  if (userRole !== "admin") {
     return res.status(403).json({ error: "Admin access required" })
   }
   next()

@@ -30,13 +30,22 @@ router.post("/subscribe", verifyToken, async (req, res) => {
     }
 
     const plan = plans[0]
-    const startDate = new Date()
-    const endDate = new Date(startDate.getTime() + plan.duration_days * 24 * 60 * 60 * 1000)
+    // Use MySQL DATE_ADD function for accurate date calculation
+    const durationDays = plan.duration_days || 365
 
     const [result] = await connection.execute(
-      "INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active) VALUES (?, ?, ?, ?, ?)",
-      [req.user.id, plan_id, startDate, endDate, true],
+      "INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?)",
+      [req.user.id, plan_id, durationDays, true],
     )
+    
+    // Get the actual dates that were inserted
+    const [insertedSub] = await connection.execute(
+      "SELECT start_date, end_date FROM user_subscriptions WHERE id = ?",
+      [result.insertId]
+    )
+    
+    const startDate = insertedSub[0].start_date
+    const endDate = insertedSub[0].end_date
 
     connection.release()
 

@@ -91,6 +91,144 @@ router.delete("/users/:id", verifyToken, isAdmin, async (req, res) => {
   }
 })
 
+router.post("/users", verifyToken, isAdmin, async (req, res) => {
+  try {
+    const bcrypt = require("bcryptjs")
+    const {
+      name,
+      email,
+      password,
+      user_type,
+      gender,
+      dob,
+      location,
+      contact,
+      bio,
+      portfolio_url,
+      availability,
+      is_verified,
+      is_premium,
+    } = req.body
+
+    if (!name || !email || !password || !user_type) {
+      return res.status(400).json({ error: "Missing required fields: name, email, password, and user_type are required" })
+    }
+
+    const connection = await pool.getConnection()
+
+    // Check if user exists
+    const [existing] = await connection.execute("SELECT id FROM users WHERE email = ?", [email])
+
+    if (existing.length > 0) {
+      connection.release()
+      return res.status(400).json({ error: "Email already registered" })
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // Create user with all fields from schema
+    const [result] = await connection.execute(
+      `INSERT INTO users (
+        name, email, password_hash, user_type, gender, dob, 
+        location, contact, bio, portfolio_url, availability, is_verified
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        name,
+        email,
+        hashedPassword,
+        user_type,
+        gender || null,
+        dob || null,
+        location || null,
+        contact || null,
+        bio || null,
+        portfolio_url || null,
+        availability || null,
+        is_verified !== undefined ? (is_verified ? 1 : 0) : 0,
+      ],
+    )
+
+    const userId = result.insertId
+
+    // Create subscription based on is_premium flag
+    if (user_type !== "admin") {
+      try {
+        if (is_premium) {
+          // Create lifetime premium subscription
+          // Deactivate any existing subscriptions first (shouldn't be any for new user, but safe to do)
+          await connection.execute(
+            "UPDATE user_subscriptions SET is_active = 0 WHERE user_id = ? AND is_active = 1",
+            [userId]
+          )
+
+          // Find lifetime plan or use plan_id 7
+          const [lifetimePlan] = await connection.execute(
+            "SELECT id FROM premium_plans WHERE name = 'Lifetime Premium' OR id = 7 LIMIT 1"
+          )
+          const finalPlanId = lifetimePlan.length > 0 ? lifetimePlan[0].id : 7
+
+          // Check if is_lifetime column exists
+          const [columns] = await connection.execute(
+            "SHOW COLUMNS FROM user_subscriptions LIKE 'is_lifetime'"
+          )
+          const hasLifetimeColumn = columns.length > 0
+
+          // Set end_date far in the future (year 2100)
+          const finalEndDate = "2100-12-31 23:59:59"
+
+          if (hasLifetimeColumn) {
+            await connection.execute(
+              `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active, is_lifetime)
+               VALUES (?, ?, NOW(), ?, ?, ?)`,
+              [userId, finalPlanId, finalEndDate, true, 1]
+            )
+          } else {
+            await connection.execute(
+              `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active)
+               VALUES (?, ?, NOW(), ?, ?)`,
+              [userId, finalPlanId, finalEndDate, true]
+            )
+          }
+        } else {
+          // Create default subscription with plan_id 6
+          const [plans] = await connection.execute("SELECT * FROM premium_plans WHERE id = ?", [6])
+
+          if (plans.length > 0) {
+            const plan = plans[0]
+            const durationDays = plan.duration_days || 365
+
+            await connection.execute(
+              `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active)
+               VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?)`,
+              [userId, 6, durationDays, true],
+            )
+          } else {
+            await connection.execute(
+              `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active)
+               VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 365 DAY), ?)`,
+              [userId, 6, true],
+            )
+          }
+        }
+      } catch (subscriptionError) {
+        console.error("Error creating subscription:", subscriptionError.message)
+        // Don't fail user creation if subscription creation fails
+      }
+    }
+
+    connection.release()
+
+    res.status(201).json({
+      message: is_premium ? "User created successfully with lifetime premium access" : "User created successfully",
+      userId: userId,
+      is_premium: is_premium || false,
+    })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
 router.get("/casting-calls", verifyToken, isAdmin, async (req, res) => {
   try {
     const connection = await pool.getConnection()
@@ -106,6 +244,101 @@ router.get("/casting-calls", verifyToken, isAdmin, async (req, res) => {
     connection.release()
 
     res.json({ casting_calls: calls })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post("/casting-calls", verifyToken, isAdmin, async (req, res) => {
+  try {
+    const {
+      production_house_id,
+      project_title,
+      role,
+      gender,
+      min_age,
+      max_age,
+      skills_required,
+      location,
+      budget_per_day,
+      audition_date,
+      description,
+    } = req.body
+
+    if (!production_house_id || !project_title || !role) {
+      return res.status(400).json({ error: "Missing required fields: production_house_id, project_title, and role are required" })
+    }
+
+    const connection = await pool.getConnection()
+
+    // Verify production house exists
+    const [productionHouses] = await connection.execute(
+      "SELECT id FROM users WHERE id = ? AND user_type = 'production_house'",
+      [production_house_id]
+    )
+
+    if (productionHouses.length === 0) {
+      connection.release()
+      return res.status(404).json({ error: "Production house not found" })
+    }
+
+    // Check if is_approved column exists
+    const [columns] = await connection.execute(
+      "SHOW COLUMNS FROM casting_calls LIKE 'is_approved'"
+    )
+    const hasApprovalColumn = columns.length > 0
+
+    // Insert casting call
+    let result
+    if (hasApprovalColumn) {
+      [result] = await connection.execute(
+        `INSERT INTO casting_calls (
+          production_house_id, project_title, role, gender, min_age, max_age,
+          skills_required, location, budget_per_day, audition_date, description, is_approved
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          production_house_id,
+          project_title,
+          role,
+          gender || null,
+          min_age || null,
+          max_age || null,
+          skills_required || null,
+          location || null,
+          budget_per_day || null,
+          audition_date || null,
+          description || null,
+          1 // Auto-approve when created by admin
+        ]
+      )
+    } else {
+      [result] = await connection.execute(
+        `INSERT INTO casting_calls (
+          production_house_id, project_title, role, gender, min_age, max_age,
+          skills_required, location, budget_per_day, audition_date, description
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          production_house_id,
+          project_title,
+          role,
+          gender || null,
+          min_age || null,
+          max_age || null,
+          skills_required || null,
+          location || null,
+          budget_per_day || null,
+          audition_date || null,
+          description || null
+        ]
+      )
+    }
+
+    connection.release()
+
+    res.status(201).json({
+      message: "Casting call created successfully",
+      castingCallId: result.insertId,
+    })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -275,6 +508,7 @@ router.get("/subscriptions", verifyToken, isAdmin, async (req, res) => {
     const connection = await pool.getConnection()
     
     // Use LEFT JOIN in case premium_plans table doesn't exist or has missing data
+    // Use start_date and end_date (actual column names in database)
     const [subs] = await connection.execute(
       `SELECT s.id, s.user_id, s.plan_id, 
               s.start_date,
@@ -303,6 +537,7 @@ router.put("/subscriptions/:id", verifyToken, isAdmin, async (req, res) => {
     const connection = await pool.getConnection()
 
     // Build update query dynamically
+    // Use start_date and end_date (actual column names in database)
     const updates = []
     const params = []
 
@@ -347,13 +582,14 @@ router.post("/subscriptions", verifyToken, isAdmin, async (req, res) => {
     const { user_id, plan_id, start_date, end_date, is_active } = req.body
 
     if (!user_id || !plan_id || !start_date || !end_date) {
-      return res.status(400).json({ error: "Missing required fields" })
+      return res.status(400).json({ error: "Missing required fields: user_id, plan_id, start_date, end_date" })
     }
 
     const connection = await pool.getConnection()
+    // Use start_date and end_date (actual column names in database)
     const [result] = await connection.execute(
       "INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active) VALUES (?, ?, ?, ?, ?)",
-      [user_id, plan_id, start_date, end_date, is_active ? 1 : 0]
+      [user_id, plan_id, start_date, end_date, is_active !== undefined ? (is_active ? 1 : 0) : 1]
     )
     connection.release()
 
@@ -369,6 +605,176 @@ router.delete("/subscriptions/:id", verifyToken, isAdmin, async (req, res) => {
     await connection.execute("DELETE FROM user_subscriptions WHERE id = ?", [req.params.id])
     connection.release()
     res.json({ message: "Subscription deleted successfully" })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// Get users without any active subscription
+router.get("/users/without-subscription", verifyToken, isAdmin, async (req, res) => {
+  try {
+    const connection = await pool.getConnection()
+    const [users] = await connection.execute(
+      `SELECT DISTINCT u.id, u.name, u.email, u.user_type, u.created_at
+       FROM users u
+       LEFT JOIN user_subscriptions us ON u.id = us.user_id AND us.is_active = 1
+       WHERE us.id IS NULL
+       AND u.user_type != 'admin'
+       ORDER BY u.created_at DESC`
+    )
+    connection.release()
+
+    res.json({ users })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// Assign lifetime/premium plan to user
+router.post("/users/:userId/assign-premium", verifyToken, isAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params
+    const { plan_id, is_lifetime, end_date } = req.body
+    
+    const connection = await pool.getConnection()
+
+    // Check if user exists
+    const [users] = await connection.execute("SELECT id FROM users WHERE id = ?", [userId])
+    if (users.length === 0) {
+      connection.release()
+      return res.status(404).json({ error: "User not found" })
+    }
+
+    // Deactivate any existing active subscriptions
+    await connection.execute(
+      "UPDATE user_subscriptions SET is_active = 0 WHERE user_id = ? AND is_active = 1",
+      [userId]
+    )
+
+    // Determine plan_id - use provided one or find lifetime plan
+    let finalPlanId = plan_id
+    if (!finalPlanId) {
+      const [lifetimePlan] = await connection.execute(
+        "SELECT id FROM premium_plans WHERE name = 'Lifetime Premium' LIMIT 1"
+      )
+      if (lifetimePlan.length > 0) {
+        finalPlanId = lifetimePlan[0].id
+      } else {
+        // If no lifetime plan exists, use plan_id 6 as fallback
+        finalPlanId = 6
+      }
+    }
+
+    // Determine end_date
+    let finalEndDate = end_date
+    if (is_lifetime) {
+      // Set end_date far in the future (year 2100)
+      finalEndDate = "2100-12-31 23:59:59"
+    } else if (!finalEndDate) {
+      // Get plan duration or default to 1 year
+      const [plans] = await connection.execute("SELECT duration_days FROM premium_plans WHERE id = ?", [finalPlanId])
+      const durationDays = plans.length > 0 ? (plans[0].duration_days || 365) : 365
+      finalEndDate = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+    }
+
+    // Check if is_lifetime column exists
+    const [columns] = await connection.execute(
+      "SHOW COLUMNS FROM user_subscriptions LIKE 'is_lifetime'"
+    )
+    const hasLifetimeColumn = columns.length > 0
+
+    // Insert new subscription
+    if (hasLifetimeColumn) {
+      await connection.execute(
+        `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active, is_lifetime)
+         VALUES (?, ?, NOW(), ?, ?, ?)`,
+        [userId, finalPlanId, finalEndDate, true, is_lifetime ? 1 : 0]
+      )
+    } else {
+      await connection.execute(
+        `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active)
+         VALUES (?, ?, NOW(), ?, ?, ?)`,
+        [userId, finalPlanId, finalEndDate, true]
+      )
+    }
+
+    connection.release()
+
+    res.json({
+      message: is_lifetime ? "Lifetime premium assigned successfully" : "Premium plan assigned successfully",
+      userId: parseInt(userId),
+      plan_id: finalPlanId,
+      is_lifetime: is_lifetime || false,
+    })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// Get all lifetime/premium users
+router.get("/premium-users", verifyToken, isAdmin, async (req, res) => {
+  try {
+    const connection = await pool.getConnection()
+    
+    // Check if is_lifetime column exists
+    const [columns] = await connection.execute(
+      "SHOW COLUMNS FROM user_subscriptions LIKE 'is_lifetime'"
+    )
+    const hasLifetimeColumn = columns.length > 0
+
+    let query = `
+      SELECT DISTINCT
+        u.id,
+        u.name,
+        u.email,
+        u.user_type,
+        us.plan_id,
+        us.start_date,
+        us.end_date,
+        us.is_active,
+        pp.name as plan_name,
+        pp.price as plan_price
+    `
+    
+    if (hasLifetimeColumn) {
+      query += `, us.is_lifetime`
+    } else {
+      query += `, CASE WHEN us.end_date >= '2100-01-01' THEN 1 ELSE 0 END as is_lifetime`
+    }
+    
+    query += `
+      FROM users u
+      INNER JOIN user_subscriptions us ON u.id = us.user_id
+      LEFT JOIN premium_plans pp ON us.plan_id = pp.id
+      WHERE us.is_active = 1
+      AND (${hasLifetimeColumn ? 'us.is_lifetime = 1' : "us.end_date >= '2100-01-01'"})
+      ORDER BY us.start_date DESC
+    `
+
+    const [premiumUsers] = await connection.execute(query)
+    connection.release()
+
+    res.json({ premium_users: premiumUsers })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// Remove premium/lifetime access
+router.delete("/users/:userId/remove-premium", verifyToken, isAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params
+    const connection = await pool.getConnection()
+
+    // Deactivate all active subscriptions for this user
+    await connection.execute(
+      "UPDATE user_subscriptions SET is_active = 0 WHERE user_id = ? AND is_active = 1",
+      [userId]
+    )
+
+    connection.release()
+
+    res.json({ message: "Premium access removed successfully" })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

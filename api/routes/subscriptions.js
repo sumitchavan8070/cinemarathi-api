@@ -16,13 +16,13 @@ router.get("/status", authenticateToken, async (req, res) => {
   try {
     const [subscription] = await db.query(
       `
-      SELECT us.id, us.user_id, us.plan_id, us.subscription_start,
-             us.subscription_end, us.is_active,
+      SELECT us.id, us.user_id, us.plan_id, us.start_date as subscription_start,
+             us.end_date as subscription_end, us.is_active,
              pp.name, pp.price, pp.features
       FROM user_subscriptions us
       JOIN premium_plans pp ON us.plan_id = pp.id
       WHERE us.user_id = ? AND us.is_active = true
-      ORDER BY us.subscription_end DESC
+      ORDER BY us.end_date DESC
       LIMIT 1
     `,
       [req.user.id],
@@ -52,16 +52,24 @@ router.post("/subscribe", authenticateToken, async (req, res) => {
     }
 
     const planDetails = plan[0]
-    const subscriptionStart = new Date()
-    const subscriptionEnd = new Date(subscriptionStart.getTime() + planDetails.duration_days * 24 * 60 * 60 * 1000)
+    // Use MySQL DATE_ADD function for accurate date calculation
+    const durationDays = planDetails.duration_days || 365
 
     const [result] = await db.query(
       `
-      INSERT INTO user_subscriptions (user_id, plan_id, subscription_start, subscription_end, is_active)
-      VALUES (?, ?, ?, ?, true)
+      INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active)
+      VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), true)
     `,
-      [req.user.id, plan_id, subscriptionStart, subscriptionEnd],
+      [req.user.id, plan_id, durationDays],
     )
+    
+    // Get the actual dates that were inserted
+    const [insertedSub] = await db.query(
+      "SELECT start_date, end_date FROM user_subscriptions WHERE id = ?",
+      [result.insertId]
+    )
+    
+    const subscriptionEnd = insertedSub[0].end_date
 
     res.json({
       message: "Subscription created",

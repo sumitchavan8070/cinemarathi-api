@@ -29,7 +29,11 @@ const register = async (req, res) => {
       contact, 
       bio, 
       portfolio_url, 
-      availability 
+      availability,
+      skills,
+      profession,
+      instagram,
+      youtube
     } = req.body
 
     if (!name || !email || !password || !user_type) {
@@ -73,6 +77,70 @@ const register = async (req, res) => {
 
     const userId = result.insertId
 
+    // If user is an actor, create actor profile with skills and profession
+    if (user_type === "actor") {
+      try {
+        // Convert skills array to JSON string if it's an array
+        let skillsValue = null
+        if (skills) {
+          if (Array.isArray(skills)) {
+            skillsValue = JSON.stringify(skills)
+          } else if (typeof skills === 'string') {
+            // If it's already a string, try to parse it or use as is
+            try {
+              JSON.parse(skills) // Validate it's valid JSON
+              skillsValue = skills
+            } catch {
+              // If not valid JSON, wrap it in array
+              skillsValue = JSON.stringify([skills])
+            }
+          }
+        }
+
+        // Use profession as category, or use profession field if it exists
+        const category = profession || null
+
+        // Try to insert with all new columns (profession, instagram, youtube)
+        try {
+          await connection.execute(
+            `INSERT INTO actors (user_id, category, skills, profession, instagram, youtube) 
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [userId, category, skillsValue, profession || null, instagram || null, youtube || null]
+          )
+        } catch (columnError) {
+          // If new columns don't exist, try with profession only
+          if (columnError.message.includes("Unknown column 'profession'") || 
+              columnError.message.includes("Unknown column 'instagram'") ||
+              columnError.message.includes("Unknown column 'youtube'")) {
+            try {
+              // Try with profession only
+              await connection.execute(
+                `INSERT INTO actors (user_id, category, skills, profession) 
+                 VALUES (?, ?, ?, ?)`,
+                [userId, category, skillsValue, profession || null]
+              )
+            } catch (professionError) {
+              // If profession also doesn't exist, insert without it
+              if (professionError.message.includes("Unknown column 'profession'")) {
+                await connection.execute(
+                  `INSERT INTO actors (user_id, category, skills) 
+                   VALUES (?, ?, ?)`,
+                  [userId, category, skillsValue]
+                )
+              } else {
+                throw professionError
+              }
+            }
+          } else {
+            throw columnError
+          }
+        }
+      } catch (actorError) {
+        console.error("Error creating actor profile:", actorError.message)
+        // Continue with registration even if actor profile creation fails
+      }
+    }
+
     // Create default subscription with plan_id 6
     try {
       // Get plan details to calculate subscription end date
@@ -83,25 +151,21 @@ const register = async (req, res) => {
 
       if (plans.length > 0) {
         const plan = plans[0]
-        const subscriptionStart = new Date()
+        // Use MySQL DATE_ADD function for accurate date calculation
         // Calculate end date based on duration_days if available, otherwise set to 1 year
         const durationDays = plan.duration_days || 365
-        const subscriptionEnd = new Date(subscriptionStart.getTime() + durationDays * 24 * 60 * 60 * 1000)
-
-        await connection.execute(
-          `INSERT INTO user_subscriptions (user_id, plan_id, subscription_start, subscription_end, is_active)
-           VALUES (?, ?, ?, ?, ?)`,
-          [userId, 6, subscriptionStart, subscriptionEnd, true]
-        )
-      } else {
-        // If plan_id 6 doesn't exist, create subscription with default 1 year duration
-        const subscriptionStart = new Date()
-        const subscriptionEnd = new Date(subscriptionStart.getTime() + 365 * 24 * 60 * 60 * 1000)
         
         await connection.execute(
-          `INSERT INTO user_subscriptions (user_id, plan_id, subscription_start, subscription_end, is_active)
-           VALUES (?, ?, ?, ?, ?)`,
-          [userId, 6, subscriptionStart, subscriptionEnd, true]
+          `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active)
+           VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?)`,
+          [userId, 6, durationDays, true]
+        )
+      } else {
+        // If plan_id 6 doesn't exist, create subscription with default 1 year duration (365 days)
+        await connection.execute(
+          `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date, is_active)
+           VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 365 DAY), ?)`,
+          [userId, 6, true]
         )
       }
     } catch (subscriptionError) {
@@ -135,7 +199,7 @@ const login = async (req, res) => {
     const { email, password } = req.body
 
     if (!email || !password) {
-      return res.status(400).json({ error: "Email and password required" })
+      return res.status(200).json({ status: 0, msg: "" })
     }
 
     const connection = await pool.getConnection()
@@ -146,7 +210,7 @@ const login = async (req, res) => {
     connection.release()
 
     if (users.length === 0) {
-      return res.status(401).json({ error: "Invalid credentials" })
+      return res.status(200).json({ status: 0, msg: "" })
     }
 
     const user = users[0]
@@ -156,22 +220,20 @@ const login = async (req, res) => {
     
     if (!userPassword) {
       console.error(`Login attempt for ${email}: User found but no password field exists`)
-      return res.status(401).json({ error: "Invalid credentials - no password set for user" })
+      return res.status(200).json({ status: 0, msg: "" })
     }
 
     const passwordMatch = await bcrypt.compare(password, userPassword)
     
     if (!passwordMatch) {
       console.error(`Login attempt for ${email}: Password mismatch`)
-    }
-
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Invalid credentials" })
+      return res.status(200).json({ status: 0, msg: "" })
     }
 
     const token = generateToken(user)
 
     res.json({
+      status: 1,
       message: "Login successful",
       userId: user.id,
       token,
@@ -183,7 +245,8 @@ const login = async (req, res) => {
       },
     })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.error("[Login API] Error:", error)
+    res.status(200).json({ status: 0, msg: "" })
   }
 }
 

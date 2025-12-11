@@ -9,16 +9,32 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body
 
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password required" })
+    }
+
+    const pool = require("../../config/database")
+    const connection = await pool.getConnection()
+
     const query = "SELECT * FROM users WHERE email = ? AND user_type = 'admin'"
-    const [result] = await req.db.execute(query, [email])
+    const [result] = await connection.execute(query, [email])
 
     if (result.length === 0) {
+      connection.release()
       return res.status(401).json({ error: "Invalid email or password" })
     }
 
     const user = result[0]
+    connection.release()
 
-    const passwordValid = await bcrypt.compare(password, user.password_hash)
+    // Check for password in either 'password' or 'password_hash' column
+    const userPassword = user.password_hash || user.password
+    
+    if (!userPassword) {
+      return res.status(401).json({ error: "Invalid email or password" })
+    }
+
+    const passwordValid = await bcrypt.compare(password, userPassword)
 
     if (!passwordValid) {
       return res.status(401).json({ error: "Invalid email or password" })
