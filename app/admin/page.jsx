@@ -91,6 +91,8 @@ export default function AdminDashboard() {
         <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
+            <h1 style={{color: 'red'}}>DEPLOY TEST 13-DEC</h1>
+
               <p className="text-sm text-blue-100 mb-2 font-medium">Total Users</p>
               <h3 className="text-4xl font-bold mb-1">{stats.totalUsers}</h3>
               <p className="text-xs text-blue-100 flex items-center gap-1">
