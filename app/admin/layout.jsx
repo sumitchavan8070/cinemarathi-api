@@ -38,7 +38,11 @@ export default function AdminLayout({ children }) {
 
       if (!token || !user) {
         setIsVerified(false)
-        router.replace("/admin/login")
+        if (typeof window !== "undefined") {
+          window.location.href = "/admin/login"
+        } else {
+          router.replace("/admin/login")
+        }
         return
       }
 
@@ -49,7 +53,11 @@ export default function AdminLayout({ children }) {
           localStorage.removeItem("adminToken")
           localStorage.removeItem("adminUser")
           setIsVerified(false)
-          router.replace("/admin/login")
+          if (typeof window !== "undefined") {
+            window.location.href = "/admin/login"
+          } else {
+            router.replace("/admin/login")
+          }
           return
         }
 
@@ -60,7 +68,11 @@ export default function AdminLayout({ children }) {
         localStorage.removeItem("adminToken")
         localStorage.removeItem("adminUser")
         setIsVerified(false)
-        router.replace("/admin/login")
+        if (typeof window !== "undefined") {
+          window.location.href = "/admin/login"
+        } else {
+          router.replace("/admin/login")
+        }
       }
     }
 
@@ -89,14 +101,22 @@ export default function AdminLayout({ children }) {
         }
       }
       
-      // Redirect to login
-      router.replace("/admin/login")
+      // Redirect to login - use window.location for production
+      if (typeof window !== "undefined") {
+        window.location.href = "/admin/login"
+      } else {
+        router.replace("/admin/login")
+      }
     } catch (error) {
       console.error("[v0] Logout error:", error)
       // Still redirect even if there's an error
       localStorage.removeItem("adminToken")
       localStorage.removeItem("adminUser")
-      router.replace("/admin/login")
+      if (typeof window !== "undefined") {
+        window.location.href = "/admin/login"
+      } else {
+        router.replace("/admin/login")
+      }
     }
   }
 

@@ -190,8 +190,13 @@ function AdminLogin() {
             const data = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$admin$2d$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["adminLogin"])(email, password);
             localStorage.setItem("adminToken", data.token);
             localStorage.setItem("adminUser", JSON.stringify(data.user));
-            router.replace("/admin");
-            router.refresh();
+            // Use window.location for production to ensure proper navigation
+            // Redirect to dashboard which will show the sidebar
+            if ("TURBOPACK compile-time truthy", 1) {
+                // Force a full page reload to ensure layout renders correctly
+                window.location.href = "/admin";
+            } else //TURBOPACK unreachable
+            ;
         } catch (err) {
             setError(err.message || "Connection error. Please try again.");
             console.error("[v0] Login error:", err);
@@ -214,7 +219,7 @@ function AdminLogin() {
                                 children: "CineMarathi"
                             }, void 0, false, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                lineNumber: 44,
+                                lineNumber: 51,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -222,13 +227,13 @@ function AdminLogin() {
                                 children: "Admin Panel"
                             }, void 0, false, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                lineNumber: 45,
+                                lineNumber: 52,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                        lineNumber: 43,
+                        lineNumber: 50,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -242,7 +247,7 @@ function AdminLogin() {
                                         children: "Email"
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                        lineNumber: 50,
+                                        lineNumber: 57,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -253,13 +258,13 @@ function AdminLogin() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                        lineNumber: 51,
+                                        lineNumber: 58,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                lineNumber: 49,
+                                lineNumber: 56,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -269,7 +274,7 @@ function AdminLogin() {
                                         children: "Password"
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                        lineNumber: 61,
+                                        lineNumber: 68,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -280,13 +285,13 @@ function AdminLogin() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                        lineNumber: 62,
+                                        lineNumber: 69,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                lineNumber: 60,
+                                lineNumber: 67,
                                 columnNumber: 13
                             }, this),
                             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -294,7 +299,7 @@ function AdminLogin() {
                                 children: error
                             }, void 0, false, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                lineNumber: 72,
+                                lineNumber: 79,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -306,14 +311,14 @@ function AdminLogin() {
                                         size: 18
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                        lineNumber: 78,
+                                        lineNumber: 85,
                                         columnNumber: 15
                                     }, this),
                                     loading ? "Logging in..." : "Login"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                lineNumber: 77,
+                                lineNumber: 84,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -321,29 +326,29 @@ function AdminLogin() {
                                 children: "Credentials: admin users with role = 'admin' from database"
                             }, void 0, false, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                                lineNumber: 82,
+                                lineNumber: 89,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                        lineNumber: 48,
+                        lineNumber: 55,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-                lineNumber: 42,
+                lineNumber: 49,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-            lineNumber: 41,
+            lineNumber: 48,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/login/page.jsx",
-        lineNumber: 40,
+        lineNumber: 47,
         columnNumber: 5
     }, this);
 }

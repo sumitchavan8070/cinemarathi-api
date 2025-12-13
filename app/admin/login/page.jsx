@@ -26,8 +26,15 @@ export default function AdminLogin() {
       localStorage.setItem("adminToken", data.token)
       localStorage.setItem("adminUser", JSON.stringify(data.user))
 
-      router.replace("/admin")
-      router.refresh()
+      // Use window.location for production to ensure proper navigation
+      // Redirect to dashboard which will show the sidebar
+      if (typeof window !== "undefined") {
+        // Force a full page reload to ensure layout renders correctly
+        window.location.href = "/admin"
+      } else {
+        router.replace("/admin")
+        router.refresh()
+      }
     } catch (err) {
       setError(err.message || "Connection error. Please try again.")
       console.error("[v0] Login error:", err)

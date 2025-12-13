@@ -30,13 +30,21 @@ export const useAdminAuth = () => {
         } else {
           clearAdminAuth()
           setIsAuthenticated(false)
-          router.push("/admin/login")
+          if (typeof window !== "undefined") {
+            window.location.href = "/admin/login"
+          } else {
+            router.push("/admin/login")
+          }
         }
       } catch (error) {
         console.error("[v0] Auth check error:", error)
         clearAdminAuth()
         setIsAuthenticated(false)
-        router.push("/admin/login")
+        if (typeof window !== "undefined") {
+          window.location.href = "/admin/login"
+        } else {
+          router.push("/admin/login")
+        }
       } finally {
         setLoading(false)
       }
