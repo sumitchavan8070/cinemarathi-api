@@ -126,10 +126,12 @@ export const apiRequest = async <T = any>(
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
   }
 
-  // Make the request
+  // Make the request with credentials
   const response = await fetch(url, {
     ...fetchOptions,
     headers,
+    credentials: 'include', // Include cookies in cross-origin requests
+    mode: 'cors', // Enable CORS
   })
 
   // Parse response
