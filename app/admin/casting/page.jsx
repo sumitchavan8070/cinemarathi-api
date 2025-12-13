@@ -182,27 +182,28 @@ export default function CastingPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
             Casting Management
           </h1>
-          <p className="text-slate-500 mt-1">Manage all casting calls and applications</p>
+          <p className="text-slate-500 mt-1 text-sm sm:text-base">Manage all casting calls and applications</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl border border-purple-200">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl border border-purple-200">
             <div className="text-xs text-slate-600 font-medium mb-0.5">Total Castings</div>
-            <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <div className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               {castings.length}
             </div>
           </div>
           <Button 
             onClick={() => setCreateDialogOpen(true)} 
-            className="gap-2 h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+            className="gap-2 h-11 w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <Plus size={18} />
-            Create Casting Call
+            <span className="hidden sm:inline">Create Casting Call</span>
+            <span className="sm:hidden">Create</span>
           </Button>
         </div>
       </div>
@@ -227,58 +228,58 @@ export default function CastingPage() {
             const hasApprovalColumn = casting.is_approved !== null && casting.is_approved !== undefined
 
             return (
-              <Card key={casting.id} className="p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01] group">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <Film className="text-white" size={20} />
+              <Card key={casting.id} className="p-4 sm:p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01] group">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start gap-3 mb-4">
+                  <div className="flex-1 w-full">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <Film className="text-white" size={18} />
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-900 mb-1">{casting.project_title}</h3>
-                        <p className="text-sm text-slate-500">
-                          <span className="font-semibold text-slate-700">Production:</span> {casting.production_house_name}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-1 truncate">{casting.project_title}</h3>
+                        <p className="text-xs sm:text-sm text-slate-500">
+                          <span className="font-semibold text-slate-700">Production:</span> <span className="truncate block">{casting.production_house_name}</span>
                         </p>
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <p className="text-sm text-slate-600">
+                      <p className="text-xs sm:text-sm text-slate-600">
                         <span className="font-semibold text-slate-800">Role:</span> {casting.role}
                       </p>
                       {casting.location && (
-                        <p className="text-sm text-slate-600">
+                        <p className="text-xs sm:text-sm text-slate-600">
                           <span className="font-semibold text-slate-800">Location:</span> {casting.location}
                         </p>
                       )}
                     </div>
                   </div>
-                  <Badge className={`${status.className} px-4 py-1.5 text-xs font-bold shadow-lg`}>
+                  <Badge className={`${status.className} px-3 sm:px-4 py-1.5 text-xs font-bold shadow-lg self-start sm:self-auto`}>
                     {status.text}
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-6 py-4 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-slate-100">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6 py-3 sm:py-4 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-slate-100">
                   <div className="text-center">
-                    <p className="text-xs text-slate-500 mb-1.5 font-medium">Gender</p>
-                    <p className="text-sm font-bold text-slate-900">{casting.gender || "Any"}</p>
+                    <p className="text-xs text-slate-500 mb-1 font-medium">Gender</p>
+                    <p className="text-xs sm:text-sm font-bold text-slate-900">{casting.gender || "Any"}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-slate-500 mb-1.5 font-medium">Applications</p>
-                    <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    <p className="text-xs text-slate-500 mb-1 font-medium">Applications</p>
+                    <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                       {Number(casting.total_applications) || 0}
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-slate-500 mb-1.5 font-medium">Posted</p>
-                    <p className="text-sm font-semibold text-slate-700">
+                    <p className="text-xs text-slate-500 mb-1 font-medium">Posted</p>
+                    <p className="text-xs sm:text-sm font-semibold text-slate-700">
                       {casting.created_at ? new Date(casting.created_at).toLocaleDateString() : "N/A"}
                     </p>
                   </div>
                 </div>
 
                 {casting.budget_per_day && (
-                  <div className="mb-4 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                    <p className="text-sm font-semibold text-slate-700">
+                  <div className="mb-4 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-700">
                       <span className="text-green-600">Budget:</span> ₹{casting.budget_per_day} <span className="text-slate-500">per day</span>
                     </p>
                   </div>
@@ -290,26 +291,32 @@ export default function CastingPage() {
                       setSelectedCasting(casting)
                       setViewDialogOpen(true)
                     }}
-                    className="gap-2 h-9 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                    className="gap-1.5 h-8 sm:h-9 text-xs sm:text-sm bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-initial"
                   >
-                    <Eye size={14} />
-                    View Details
+                    <Eye size={12} className="sm:hidden" />
+                    <Eye size={14} className="hidden sm:block" />
+                    <span className="hidden sm:inline">View Details</span>
+                    <span className="sm:hidden">View</span>
                   </Button>
                   {hasApprovalColumn && !isApproved && (
                     <>
                       <Button 
                         onClick={() => approveCasting(casting.id)} 
-                        className="gap-2 h-9 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                        className="gap-1.5 h-8 sm:h-9 text-xs sm:text-sm bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-initial"
                       >
-                        <CheckCircle size={14} />
-                        Approve
+                        <CheckCircle size={12} className="sm:hidden" />
+                        <CheckCircle size={14} className="hidden sm:block" />
+                        <span className="hidden sm:inline">Approve</span>
+                        <span className="sm:hidden">Approve</span>
                       </Button>
                       <Button 
                         onClick={() => rejectCasting(casting.id)} 
-                        className="gap-2 h-9 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                        className="gap-1.5 h-8 sm:h-9 text-xs sm:text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-initial"
                       >
-                        <XCircle size={14} />
-                        Reject
+                        <XCircle size={12} className="sm:hidden" />
+                        <XCircle size={14} className="hidden sm:block" />
+                        <span className="hidden sm:inline">Reject</span>
+                        <span className="sm:hidden">Reject</span>
                       </Button>
                     </>
                   )}
@@ -318,10 +325,12 @@ export default function CastingPage() {
                       setSelectedCasting(casting)
                       setDeleteDialogOpen(true)
                     }}
-                    className="gap-2 h-9 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                    className="gap-1.5 h-8 sm:h-9 text-xs sm:text-sm bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-initial"
                   >
-                    <Trash2 size={14} />
-                    Delete
+                    <Trash2 size={12} className="sm:hidden" />
+                    <Trash2 size={14} className="hidden sm:block" />
+                    <span className="hidden sm:inline">Delete</span>
+                    <span className="sm:hidden">Delete</span>
                   </Button>
                 </div>
               </Card>

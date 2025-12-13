@@ -95,46 +95,48 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
             User Management
           </h1>
-          <p className="text-slate-500 mt-1">Manage all platform users</p>
+          <p className="text-slate-500 mt-1 text-sm sm:text-base">Manage all platform users</p>
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-initial">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
             <Input
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-full sm:w-64 h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
+              className="pl-10 w-full h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
             />
           </div>
-          <Link href="/admin/users/create">
-            <Button className="gap-2 h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
+          <Link href="/admin/users/create" className="w-full sm:w-auto">
+            <Button className="gap-2 h-11 w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
               <UserPlus size={18} />
-              Create User
+              <span className="hidden sm:inline">Create User</span>
+              <span className="sm:hidden">Create</span>
             </Button>
           </Link>
         </div>
       </div>
 
       <Card className="overflow-hidden bg-white border-0 shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Name</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Email</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Role</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Joined</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Actions</th>
-              </tr>
-            </thead>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="w-full min-w-[800px]">
+              <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
+                <tr>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Name</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white hidden md:table-cell">Email</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Role</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Status</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white hidden lg:table-cell">Joined</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Actions</th>
+                </tr>
+              </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredUsers.length === 0 ? (
                 <tr>
@@ -150,55 +152,61 @@ export default function UsersPage() {
               ) : (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 transition-all duration-200 group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0">
                           {user.name?.charAt(0)?.toUpperCase() || "U"}
                         </div>
-                        <span className="text-sm font-semibold text-slate-900">{user.name}</span>
+                        <div className="min-w-0">
+                          <span className="text-xs sm:text-sm font-semibold text-slate-900 block truncate">{user.name}</span>
+                          <span className="text-xs text-slate-500 md:hidden truncate block">{user.email}</span>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-700">{user.email}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold capitalize">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700 hidden md:table-cell">{user.email}</td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold capitalize">
                         {user.role || user.user_type}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${getStatusBadge(user.is_verified)}`}>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <span className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold ${getStatusBadge(user.is_verified)}`}>
                         {user.is_verified ? "✓ Verified" : "⏳ Pending"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 hidden lg:table-cell">
                       {new Date(user.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="flex flex-wrap gap-1 sm:gap-2">
                         {!user.is_verified && (
                           <Button 
                             size="sm" 
                             onClick={() => verifyUser(user.id)} 
-                            className="gap-1.5 h-8 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                            className="gap-1 h-7 sm:h-8 text-xs bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 px-2 sm:px-3"
                           >
-                            <CheckCircle size={14} />
-                            Verify
+                            <CheckCircle size={12} className="sm:hidden" />
+                            <CheckCircle size={14} className="hidden sm:block" />
+                            <span className="hidden sm:inline">Verify</span>
                           </Button>
                         )}
                         <Button
                           size="sm"
                           onClick={() => suspendUser(user.id)}
-                          className="gap-1.5 h-8 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                          className="gap-1 h-7 sm:h-8 text-xs bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 px-2 sm:px-3"
                         >
-                          <Shield size={14} />
-                          Suspend
+                          <Shield size={12} className="sm:hidden" />
+                          <Shield size={14} className="hidden sm:block" />
+                          <span className="hidden sm:inline">Suspend</span>
                         </Button>
                         <Button 
                           size="sm" 
                           onClick={() => deleteUser(user.id)} 
-                          className="gap-1.5 h-8 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                          className="gap-1 h-7 sm:h-8 text-xs bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 px-2 sm:px-3"
                         >
-                          <Trash2 size={14} />
-                          Delete
+                          <Trash2 size={12} className="sm:hidden" />
+                          <Trash2 size={14} className="hidden sm:block" />
+                          <span className="hidden sm:inline">Delete</span>
                         </Button>
                       </div>
                     </td>
@@ -207,6 +215,7 @@ export default function UsersPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </Card>
     </div>

@@ -52,16 +52,16 @@ export default function AdminLogin() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-lg border-0 shadow-2xl relative z-10 transform transition-all duration-300 hover:scale-[1.02]">
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl mb-4 shadow-lg">
-              <Film className="text-white" size={32} />
+      <Card className="w-full max-w-md bg-white/95 backdrop-blur-lg border-0 shadow-2xl relative z-10 transform transition-all duration-300 hover:scale-[1.02] mx-4">
+        <div className="p-6 sm:p-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl mb-3 sm:mb-4 shadow-lg">
+              <Film className="text-white" size={24} />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
               CineMarathi
             </h1>
-            <p className="text-slate-600 font-medium">Admin Panel</p>
+            <p className="text-sm sm:text-base text-slate-600 font-medium">Admin Panel</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">

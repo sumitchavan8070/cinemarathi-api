@@ -142,46 +142,47 @@ export default function PremiumUsersPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
             Premium Users Management
           </h1>
-          <p className="text-slate-500 mt-1">Manage premium and lifetime subscriptions</p>
+          <p className="text-slate-500 mt-1 text-sm sm:text-base">Manage premium and lifetime subscriptions</p>
         </div>
       </div>
 
       {/* Premium Users List */}
-      <Card className="p-6 bg-white border-0 shadow-xl">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-              <Crown className="text-white" size={24} />
+      <Card className="p-4 sm:p-6 bg-white border-0 shadow-xl">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+              <Crown className="text-white" size={20} />
             </div>
-            <div>
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
                 Premium Users
               </span>
-              <span className="ml-2 px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 rounded-full text-sm font-bold">
+              <span className="px-2 sm:px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 rounded-full text-xs sm:text-sm font-bold">
                 {premiumUsers.length}
               </span>
             </div>
           </h2>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">User</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Email</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Plan</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Start Date</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Actions</th>
-              </tr>
-            </thead>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="w-full min-w-[800px]">
+              <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
+                <tr>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">User</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white hidden md:table-cell">Email</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Plan</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Status</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white hidden lg:table-cell">Start Date</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Actions</th>
+                </tr>
+              </thead>
             <tbody className="divide-y divide-slate-100">
               {premiumUsers.length === 0 ? (
                 <tr>
@@ -197,43 +198,47 @@ export default function PremiumUsersPage() {
               ) : (
                 premiumUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 transition-all duration-200 group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0">
                           {user.name?.charAt(0)?.toUpperCase() || "U"}
                         </div>
-                        <span className="text-sm font-semibold text-slate-900">{user.name}</span>
+                        <div className="min-w-0">
+                          <span className="text-xs sm:text-sm font-semibold text-slate-900 block truncate">{user.name}</span>
+                          <span className="text-xs text-slate-500 md:hidden truncate block">{user.email}</span>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-700">{user.email}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700 hidden md:table-cell">{user.email}</td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">
                           {user.plan_name || `Plan #${user.plan_id}`}
                         </span>
                         {user.is_lifetime && (
-                          <span className="px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-full text-xs font-bold shadow-lg shadow-yellow-500/30">
+                          <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-full text-xs font-bold shadow-lg shadow-yellow-500/30">
                             Lifetime
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-xs font-bold shadow-lg shadow-green-500/30">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-xs font-bold shadow-lg shadow-green-500/30">
                         Active
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 hidden lg:table-cell">
                       {new Date(user.start_date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
                       <Button
                         size="sm"
                         onClick={() => handleRemovePremium(user.id)}
-                        className="gap-1.5 h-8 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                        className="gap-1 h-7 sm:h-8 text-xs bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 px-2 sm:px-3"
                       >
-                        <Trash2 size={14} />
-                        Remove
+                        <Trash2 size={12} className="sm:hidden" />
+                        <Trash2 size={14} className="hidden sm:block" />
+                        <span className="hidden sm:inline">Remove</span>
                       </Button>
                     </td>
                   </tr>
@@ -241,17 +246,18 @@ export default function PremiumUsersPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </Card>
 
       {/* Search and Assign Premium */}
-      <Card className="p-6 bg-white border-0 shadow-xl">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-              <UserPlus className="text-white" size={20} />
+      <Card className="p-4 sm:p-6 bg-white border-0 shadow-xl">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+              <UserPlus className="text-white" size={18} />
             </div>
-            Search Users to Assign Premium
+            <span className="break-words">Search Users to Assign Premium</span>
           </h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
@@ -279,18 +285,19 @@ export default function PremiumUsersPage() {
         </div>
 
         {searchTerm.trim() !== "" && !searching && (
-          <div className="overflow-x-auto mt-6">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Name</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Email</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-white">User Type</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Joined</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Subscription Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Actions</th>
-                </tr>
-              </thead>
+          <div className="overflow-x-auto -mx-4 sm:mx-0 mt-4 sm:mt-6">
+            <div className="inline-block min-w-full align-middle">
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
+                  <tr>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Name</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white hidden md:table-cell">Email</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">User Type</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white hidden lg:table-cell">Joined</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Status</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Actions</th>
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-slate-100">
                 {searchedUsers.length === 0 ? (
                   <tr>
@@ -309,43 +316,47 @@ export default function PremiumUsersPage() {
                     const hasPremium = premiumUsers.some(pu => pu.id === user.id)
                     return (
                       <tr key={user.id} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 transition-all duration-200 group">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0">
                               {user.name?.charAt(0)?.toUpperCase() || "U"}
                             </div>
-                            <span className="text-sm font-semibold text-slate-900">{user.name}</span>
+                            <div className="min-w-0">
+                              <span className="text-xs sm:text-sm font-semibold text-slate-900 block truncate">{user.name}</span>
+                              <span className="text-xs text-slate-500 md:hidden truncate block">{user.email}</span>
+                            </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-700">{user.email}</td>
-                        <td className="px-6 py-4">
-                          <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold capitalize">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700 hidden md:table-cell">{user.email}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold capitalize">
                             {user.role || user.user_type}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 hidden lg:table-cell">
                           {new Date(user.created_at).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
                           {hasPremium ? (
-                            <span className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-xs font-bold shadow-lg shadow-green-500/30">
+                            <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-xs font-bold shadow-lg shadow-green-500/30">
                               Has Premium
                             </span>
                           ) : (
-                            <span className="px-3 py-1.5 bg-gradient-to-r from-slate-400 to-slate-500 text-white rounded-full text-xs font-bold shadow-lg shadow-slate-500/30">
+                            <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-slate-400 to-slate-500 text-white rounded-full text-xs font-bold shadow-lg shadow-slate-500/30">
                               No Premium
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
                           {hasPremium ? (
                             <Button
                               size="sm"
                               disabled
-                              className="gap-1.5 h-8 bg-slate-300 text-slate-500 font-semibold rounded-lg cursor-not-allowed"
+                              className="gap-1 h-7 sm:h-8 text-xs bg-slate-300 text-slate-500 font-semibold rounded-lg cursor-not-allowed px-2 sm:px-3"
                             >
-                              <Crown size={14} />
-                              Already Premium
+                              <Crown size={12} className="sm:hidden" />
+                              <Crown size={14} className="hidden sm:block" />
+                              <span className="hidden sm:inline">Already Premium</span>
                             </Button>
                           ) : (
                             <Button
@@ -354,10 +365,11 @@ export default function PremiumUsersPage() {
                                 setSelectedUser(user)
                                 setAssignDialogOpen(true)
                               }}
-                              className="gap-1.5 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                              className="gap-1 h-7 sm:h-8 text-xs bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 px-2 sm:px-3"
                             >
-                              <Crown size={14} />
-                              Assign Premium
+                              <Crown size={12} className="sm:hidden" />
+                              <Crown size={14} className="hidden sm:block" />
+                              <span className="hidden sm:inline">Assign Premium</span>
                             </Button>
                           )}
                         </td>
@@ -367,6 +379,7 @@ export default function PremiumUsersPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </Card>

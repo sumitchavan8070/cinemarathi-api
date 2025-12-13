@@ -65,26 +65,27 @@ export default function CreateUserPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => router.push("/admin/users")}
-          className="gap-2 hover:bg-slate-100 rounded-xl transition-all duration-200"
+          className="gap-2 hover:bg-slate-100 rounded-xl transition-all duration-200 self-start"
         >
           <ArrowLeft size={16} />
-          Back to Users
+          <span className="hidden sm:inline">Back to Users</span>
+          <span className="sm:hidden">Back</span>
         </Button>
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
             Create New User
           </h1>
-          <p className="text-slate-500 mt-1">Add a new user to the platform</p>
+          <p className="text-slate-500 mt-1 text-sm sm:text-base">Add a new user to the platform</p>
         </div>
       </div>
 
-      <Card className="p-8 bg-white border-0 shadow-xl">
+      <Card className="p-4 sm:p-6 lg:p-8 bg-white border-0 shadow-xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div className="p-4 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl">

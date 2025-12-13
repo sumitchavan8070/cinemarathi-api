@@ -87,80 +87,78 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-            <h1 style={{color: 'red'}}>DEPLOY TEST 13-DEC</h1>
-
-              <p className="text-sm text-blue-100 mb-2 font-medium">Total Users</p>
-              <h3 className="text-4xl font-bold mb-1">{stats.totalUsers}</h3>
+              <p className="text-xs sm:text-sm text-blue-100 mb-1 sm:mb-2 font-medium">Total Users</p>
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1">{stats.totalUsers}</h3>
               <p className="text-xs text-blue-100 flex items-center gap-1">
-                <TrendingUp size={14} />
+                <TrendingUp size={12} />
                 +12% this month
               </p>
             </div>
-            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Users className="text-white" size={32} />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm flex-shrink-0">
+              <Users className="text-white" size={24} />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-purple-100 mb-2 font-medium">Active Listings</p>
-              <h3 className="text-4xl font-bold mb-1">{stats.activeListings}</h3>
+              <p className="text-xs sm:text-sm text-purple-100 mb-1 sm:mb-2 font-medium">Active Listings</p>
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1">{stats.activeListings}</h3>
               <p className="text-xs text-purple-100 flex items-center gap-1">
-                <TrendingUp size={14} />
+                <TrendingUp size={12} />
                 +8% this week
               </p>
             </div>
-            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Film className="text-white" size={32} />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm flex-shrink-0">
+              <Film className="text-white" size={24} />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-green-100 mb-2 font-medium">Total Revenue</p>
-              <h3 className="text-4xl font-bold mb-1">
+              <p className="text-xs sm:text-sm text-green-100 mb-1 sm:mb-2 font-medium">Total Revenue</p>
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1">
                 ₹{stats.totalRevenue >= 1000 ? (stats.totalRevenue / 1000).toFixed(0) + 'K' : stats.totalRevenue}
               </h3>
               <p className="text-xs text-green-100 flex items-center gap-1">
-                <TrendingUp size={14} />
+                <TrendingUp size={12} />
                 +15% this month
               </p>
             </div>
-            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <CreditCard className="text-white" size={32} />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm flex-shrink-0">
+              <CreditCard className="text-white" size={24} />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-orange-100 mb-2 font-medium">Growth Rate</p>
-              <h3 className="text-4xl font-bold mb-1">{stats.growthRate}%</h3>
+              <p className="text-xs sm:text-sm text-orange-100 mb-1 sm:mb-2 font-medium">Growth Rate</p>
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1">{stats.growthRate}%</h3>
               <p className="text-xs text-orange-100 flex items-center gap-1">
-                <TrendingUp size={14} />
+                <TrendingUp size={12} />
                 vs last quarter
               </p>
             </div>
-            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <TrendingUp className="text-white" size={32} />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm flex-shrink-0">
+              <TrendingUp className="text-white" size={24} />
             </div>
           </div>
         </Card>
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Line Chart */}
-        <Card className="col-span-2 p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+        <Card className="col-span-1 lg:col-span-2 p-4 sm:p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-slate-900">User Growth & Revenue</h3>
             <div className="flex items-center gap-4">
@@ -196,9 +194,9 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Pie Chart */}
-        <Card className="p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <h3 className="text-xl font-bold text-slate-900 mb-6">User Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <Card className="p-4 sm:p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6">User Distribution</h3>
+          <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
                 data={pieData}
@@ -228,9 +226,9 @@ export default function AdminDashboard() {
       </div>
 
       {/* Bar Chart */}
-      <Card className="p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
-        <h3 className="text-xl font-bold text-slate-900 mb-6">Monthly Performance</h3>
-        <ResponsiveContainer width="100%" height={300}>
+      <Card className="p-4 sm:p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+        <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6">Monthly Performance</h3>
+        <ResponsiveContainer width="100%" height={250}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="name" stroke="#64748b" />

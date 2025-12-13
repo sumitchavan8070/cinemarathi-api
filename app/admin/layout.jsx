@@ -143,11 +143,21 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       {/* Sidebar */}
       <aside
         className={`${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        } ${
           sidebarOpen ? "w-64" : "w-20"
-        } bg-gradient-to-b from-slate-900 to-slate-800 border-r border-slate-700/50 transition-all duration-300 flex flex-col shadow-2xl`}
+        } fixed lg:static h-full bg-gradient-to-b from-slate-900 to-slate-800 border-r border-slate-700/50 transition-all duration-300 flex flex-col shadow-2xl z-50`}
       >
         {/* Logo */}
         <div className="p-6 border-b border-slate-700/50 flex items-center justify-between bg-slate-900/50">
@@ -221,19 +231,27 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto w-full">
         {/* Top Bar */}
-        <header className="bg-white/80 backdrop-blur-lg border-b border-slate-200 h-16 flex items-center justify-between px-8 sticky top-0 z-10 shadow-sm">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-            Admin Panel
-          </h2>
+        <header className="bg-white/80 backdrop-blur-lg border-b border-slate-200 h-14 lg:h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-10 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <Menu size={20} className="text-slate-700" />
+            </button>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              Admin Panel
+            </h2>
+          </div>
           {adminUser && (
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden md:block">
+            <div className="flex items-center gap-2 lg:gap-3">
+              <div className="text-right hidden lg:block">
                 <p className="text-sm font-semibold text-slate-900">{adminUser.name}</p>
                 <p className="text-xs text-slate-500">{adminUser.email}</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs lg:text-sm shadow-lg">
                 {adminUser.name?.charAt(0)?.toUpperCase() || "A"}
               </div>
             </div>
@@ -241,7 +259,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* Content Area */}
-        <div className="p-8">{children}</div>
+        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>
   )

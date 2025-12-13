@@ -32,23 +32,23 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-4 sm:space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
           Settings
         </h1>
-        <p className="text-slate-500 mt-1">Manage platform configuration and preferences</p>
+        <p className="text-slate-500 mt-1 text-sm sm:text-base">Manage platform configuration and preferences</p>
       </div>
 
       {/* General Settings */}
-      <Card className="p-6 bg-white border-0 shadow-xl">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-            <Settings className="text-white" size={20} />
+      <Card className="p-4 sm:p-6 bg-white border-0 shadow-xl">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+            <Settings className="text-white" size={18} />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">General Settings</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">General Settings</h2>
         </div>
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5">
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">Platform Name</label>
             <Input

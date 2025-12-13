@@ -221,32 +221,33 @@ export default function SubscriptionsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
             Subscriptions
           </h1>
-          <p className="text-slate-500 mt-1">Manage user subscriptions and premium plans</p>
+          <p className="text-slate-500 mt-1 text-sm sm:text-base">Manage user subscriptions and premium plans</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 text-right">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 text-right w-full sm:w-auto">
             <p className="text-xs text-green-700 font-medium mb-0.5">Active Revenue</p>
-            <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            <p className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
               ₹{totalRevenue}
             </p>
           </div>
           <Button 
             onClick={() => setCreateDialogOpen(true)} 
-            className="gap-2 h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+            className="gap-2 h-11 w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <Plus size={18} />
-            Create Subscription
+            <span className="hidden sm:inline">Create Subscription</span>
+            <span className="sm:hidden">Create</span>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <p className="text-sm text-blue-100 mb-2 font-medium">Total Subscriptions</p>
           <h3 className="text-4xl font-bold mb-1">{subscriptions.length}</h3>
@@ -267,18 +268,19 @@ export default function SubscriptionsPage() {
       </div>
 
       <Card className="overflow-hidden bg-white border-0 shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">User</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Plan</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Amount</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Period</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-white">Actions</th>
-              </tr>
-            </thead>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="w-full min-w-[800px]">
+              <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
+                <tr>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">User</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white hidden md:table-cell">Plan</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Amount</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white hidden lg:table-cell">Period</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Status</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-bold text-white">Actions</th>
+                </tr>
+              </thead>
             <tbody className="divide-y divide-slate-100">
               {subscriptions.length === 0 ? (
                 <tr>
@@ -321,9 +323,9 @@ export default function SubscriptionsPage() {
                         {sub.start_date ? new Date(sub.start_date).toLocaleDateString() : "N/A"} to{" "}
                         {sub.end_date ? new Date(sub.end_date).toLocaleDateString() : "N/A"}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4">
                         <span
-                          className={`px-3 py-1.5 rounded-full text-xs font-bold ${getStatusBadge(
+                          className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold ${getStatusBadge(
                             sub.is_active,
                             sub.end_date,
                           )}`}
@@ -331,15 +333,16 @@ export default function SubscriptionsPage() {
                           {status}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4">
+                        <div className="flex flex-wrap gap-1 sm:gap-2">
                           <Button
                             size="sm"
                             onClick={() => handleEdit(sub)}
-                            className="gap-1.5 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                            className="gap-1 h-7 sm:h-8 text-xs bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 px-2 sm:px-3"
                           >
-                            <Edit2 size={14} />
-                            Edit
+                            <Edit2 size={12} className="sm:hidden" />
+                            <Edit2 size={14} className="hidden sm:block" />
+                            <span className="hidden sm:inline">Edit</span>
                           </Button>
                           <Button
                             size="sm"
@@ -347,10 +350,11 @@ export default function SubscriptionsPage() {
                               setSelectedSubscription(sub)
                               setDeleteDialogOpen(true)
                             }}
-                            className="gap-1.5 h-8 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                            className="gap-1 h-7 sm:h-8 text-xs bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 px-2 sm:px-3"
                           >
-                            <Trash2 size={14} />
-                            Delete
+                            <Trash2 size={12} className="sm:hidden" />
+                            <Trash2 size={14} className="hidden sm:block" />
+                            <span className="hidden sm:inline">Delete</span>
                           </Button>
                         </div>
                       </td>
@@ -360,6 +364,7 @@ export default function SubscriptionsPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </Card>
 
