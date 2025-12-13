@@ -665,9 +665,13 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemar
 var __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$crown$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Crown$3e$__ = __turbopack_context__.i("[project]/sc/CineMarathi/cinemarathi-api/node_modules/lucide-react/dist/esm/icons/crown.js [app-client] (ecmascript) <export default as Crown>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__ = __turbopack_context__.i("[project]/sc/CineMarathi/cinemarathi-api/node_modules/lucide-react/dist/esm/icons/trash-2.js [app-client] (ecmascript) <export default as Trash2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2d$big$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle$3e$__ = __turbopack_context__.i("[project]/sc/CineMarathi/cinemarathi-api/node_modules/lucide-react/dist/esm/icons/circle-check-big.js [app-client] (ecmascript) <export default as CheckCircle>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/sc/CineMarathi/cinemarathi-api/lib/api.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$admin$2d$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/sc/CineMarathi/cinemarathi-api/lib/admin-auth.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
+;
+;
 ;
 ;
 ;
@@ -703,21 +707,16 @@ function PremiumUsersPage() {
                 "PremiumUsersPage.useEffect.searchUsers": async ()=>{
                     setSearching(true);
                     try {
-                        const token = localStorage.getItem("adminToken");
-                        const response = await fetch("/api/admin/users", {
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            }
+                        const token = (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$admin$2d$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getAdminToken"])();
+                        const data = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiGet"])("/admin/users", {
+                            token
                         });
-                        if (response.ok) {
-                            const data = await response.json();
-                            const users = data.users || [];
-                            // Filter users based on search term
-                            const filtered = users.filter({
-                                "PremiumUsersPage.useEffect.searchUsers.filtered": (user)=>user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase())
-                            }["PremiumUsersPage.useEffect.searchUsers.filtered"]);
-                            setSearchedUsers(filtered);
-                        }
+                        const users = data.users || [];
+                        // Filter users based on search term
+                        const filtered = users.filter({
+                            "PremiumUsersPage.useEffect.searchUsers.filtered": (user)=>user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                        }["PremiumUsersPage.useEffect.searchUsers.filtered"]);
+                        setSearchedUsers(filtered);
                     } catch (error) {
                         console.error("[Premium Users] Search error:", error);
                     } finally{
@@ -736,17 +735,11 @@ function PremiumUsersPage() {
     ]);
     const fetchData = async ()=>{
         try {
-            const token = localStorage.getItem("adminToken");
-            // Fetch premium users
-            const premiumResponse = await fetch("/api/admin/premium-users", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const token = (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$admin$2d$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getAdminToken"])();
+            const premiumData = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiGet"])("/admin/premium-users", {
+                token
             });
-            if (premiumResponse.ok) {
-                const premiumData = await premiumResponse.json();
-                setPremiumUsers(premiumData.premium_users || []);
-            }
+            setPremiumUsers(premiumData.premium_users || []);
         } catch (error) {
             console.error("[Premium Users] Error:", error);
         } finally{
@@ -756,35 +749,25 @@ function PremiumUsersPage() {
     const handleAssignPremium = async ()=>{
         if (!selectedUser) return;
         try {
-            const token = localStorage.getItem("adminToken");
-            const response = await fetch(`/api/admin/users/${selectedUser.id}/assign-premium`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    is_lifetime: planType === "lifetime",
-                    plan_id: null
-                })
+            const token = (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$admin$2d$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getAdminToken"])();
+            await apiPost(`/admin/users/${selectedUser.id}/assign-premium`, {
+                is_lifetime: planType === "lifetime",
+                plan_id: null
+            }, {
+                token
             });
-            if (response.ok) {
-                setAssignDialogOpen(false);
-                setSelectedUser(null);
-                await fetchData(); // Refresh premium users list
-                // Re-trigger search if we have a search term
-                if (searchTerm.trim() !== "") {
-                    const currentSearch = searchTerm;
-                    setSearchTerm("");
-                    setTimeout(()=>setSearchTerm(currentSearch), 100);
-                }
-            } else {
-                const errorData = await response.json();
-                alert(errorData.error || "Failed to assign premium");
+            setAssignDialogOpen(false);
+            setSelectedUser(null);
+            await fetchData(); // Refresh premium users list
+            // Re-trigger search if we have a search term
+            if (searchTerm.trim() !== "") {
+                const currentSearch = searchTerm;
+                setSearchTerm("");
+                setTimeout(()=>setSearchTerm(currentSearch), 100);
             }
         } catch (error) {
             console.error("[Premium Users] Assign error:", error);
-            alert("Error assigning premium access");
+            alert(error.message || "Error assigning premium access");
         }
     };
     const handleRemovePremium = async (userId)=>{
@@ -792,28 +775,20 @@ function PremiumUsersPage() {
             return;
         }
         try {
-            const token = localStorage.getItem("adminToken");
-            const response = await fetch(`/api/admin/users/${userId}/remove-premium`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const token = (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$admin$2d$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getAdminToken"])();
+            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiDelete"])(`/admin/users/${userId}/remove-premium`, {
+                token
             });
-            if (response.ok) {
-                await fetchData(); // Refresh premium users list
-                // Re-trigger search if we have a search term
-                if (searchTerm.trim() !== "") {
-                    const currentSearch = searchTerm;
-                    setSearchTerm("");
-                    setTimeout(()=>setSearchTerm(currentSearch), 100);
-                }
-            } else {
-                const errorData = await response.json();
-                alert(errorData.error || "Failed to remove premium access");
+            await fetchData(); // Refresh premium users list
+            // Re-trigger search if we have a search term
+            if (searchTerm.trim() !== "") {
+                const currentSearch = searchTerm;
+                setSearchTerm("");
+                setTimeout(()=>setSearchTerm(currentSearch), 100);
             }
         } catch (error) {
             console.error("[Premium Users] Remove error:", error);
-            alert("Error removing premium access");
+            alert(error.message || "Error removing premium access");
         }
     };
     if (loading) {
@@ -824,12 +799,12 @@ function PremiumUsersPage() {
                 children: "Loading..."
             }, void 0, false, {
                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                lineNumber: 175,
+                lineNumber: 136,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-            lineNumber: 174,
+            lineNumber: 135,
             columnNumber: 7
         }, this);
     }
@@ -843,12 +818,12 @@ function PremiumUsersPage() {
                     children: "Premium Users Management"
                 }, void 0, false, {
                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                    lineNumber: 183,
+                    lineNumber: 144,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                lineNumber: 182,
+                lineNumber: 143,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -864,7 +839,7 @@ function PremiumUsersPage() {
                                     size: 20
                                 }, void 0, false, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 190,
+                                    lineNumber: 151,
                                     columnNumber: 13
                                 }, this),
                                 "Lifetime/Premium Users (",
@@ -873,12 +848,12 @@ function PremiumUsersPage() {
                             ]
                         }, void 0, true, {
                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                            lineNumber: 189,
+                            lineNumber: 150,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                        lineNumber: 188,
+                        lineNumber: 149,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -895,7 +870,7 @@ function PremiumUsersPage() {
                                                 children: "User"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 199,
+                                                lineNumber: 160,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -903,7 +878,7 @@ function PremiumUsersPage() {
                                                 children: "Email"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 200,
+                                                lineNumber: 161,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -911,7 +886,7 @@ function PremiumUsersPage() {
                                                 children: "Plan"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 201,
+                                                lineNumber: 162,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -919,7 +894,7 @@ function PremiumUsersPage() {
                                                 children: "Status"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 202,
+                                                lineNumber: 163,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -927,7 +902,7 @@ function PremiumUsersPage() {
                                                 children: "Start Date"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 203,
+                                                lineNumber: 164,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -935,18 +910,18 @@ function PremiumUsersPage() {
                                                 children: "Actions"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 204,
+                                                lineNumber: 165,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                        lineNumber: 198,
+                                        lineNumber: 159,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 197,
+                                    lineNumber: 158,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -958,12 +933,12 @@ function PremiumUsersPage() {
                                             children: "No premium users found"
                                         }, void 0, false, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 210,
+                                            lineNumber: 171,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                        lineNumber: 209,
+                                        lineNumber: 170,
                                         columnNumber: 17
                                     }, this) : premiumUsers.map((user)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
                                             className: "hover:bg-muted/50 transition-colors",
@@ -973,7 +948,7 @@ function PremiumUsersPage() {
                                                     children: user.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 217,
+                                                    lineNumber: 178,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -981,7 +956,7 @@ function PremiumUsersPage() {
                                                     children: user.email
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 218,
+                                                    lineNumber: 179,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -993,13 +968,13 @@ function PremiumUsersPage() {
                                                             children: "Lifetime"
                                                         }, void 0, false, {
                                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                            lineNumber: 222,
+                                                            lineNumber: 183,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 219,
+                                                    lineNumber: 180,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1009,12 +984,12 @@ function PremiumUsersPage() {
                                                         children: "Active"
                                                     }, void 0, false, {
                                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                        lineNumber: 228,
+                                                        lineNumber: 189,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 227,
+                                                    lineNumber: 188,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1022,7 +997,7 @@ function PremiumUsersPage() {
                                                     children: new Date(user.start_date).toLocaleDateString()
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 232,
+                                                    lineNumber: 193,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1037,47 +1012,47 @@ function PremiumUsersPage() {
                                                                 size: 16
                                                             }, void 0, false, {
                                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                                lineNumber: 242,
+                                                                lineNumber: 203,
                                                                 columnNumber: 25
                                                             }, this),
                                                             "Remove"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                        lineNumber: 236,
+                                                        lineNumber: 197,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 235,
+                                                    lineNumber: 196,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, user.id, true, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 216,
+                                            lineNumber: 177,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 207,
+                                    lineNumber: 168,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                            lineNumber: 196,
+                            lineNumber: 157,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                        lineNumber: 195,
+                        lineNumber: 156,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                lineNumber: 187,
+                lineNumber: 148,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1091,7 +1066,7 @@ function PremiumUsersPage() {
                                 children: "Search Users to Assign Premium"
                             }, void 0, false, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                lineNumber: 257,
+                                lineNumber: 218,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1102,7 +1077,7 @@ function PremiumUsersPage() {
                                         size: 18
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                        lineNumber: 261,
+                                        lineNumber: 222,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1112,13 +1087,13 @@ function PremiumUsersPage() {
                                         className: "pl-10 w-full max-w-md"
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                        lineNumber: 262,
+                                        lineNumber: 223,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                lineNumber: 260,
+                                lineNumber: 221,
                                 columnNumber: 11
                             }, this),
                             searchTerm.trim() && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1126,13 +1101,13 @@ function PremiumUsersPage() {
                                 children: searching ? "Searching..." : `Found ${searchedUsers.length} user(s)`
                             }, void 0, false, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                lineNumber: 270,
+                                lineNumber: 231,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                        lineNumber: 256,
+                        lineNumber: 217,
                         columnNumber: 9
                     }, this),
                     searchTerm.trim() !== "" && !searching && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1149,7 +1124,7 @@ function PremiumUsersPage() {
                                                 children: "Name"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 281,
+                                                lineNumber: 242,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1157,7 +1132,7 @@ function PremiumUsersPage() {
                                                 children: "Email"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 282,
+                                                lineNumber: 243,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1165,7 +1140,7 @@ function PremiumUsersPage() {
                                                 children: "User Type"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 283,
+                                                lineNumber: 244,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1173,7 +1148,7 @@ function PremiumUsersPage() {
                                                 children: "Joined"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 284,
+                                                lineNumber: 245,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1181,7 +1156,7 @@ function PremiumUsersPage() {
                                                 children: "Subscription Status"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 285,
+                                                lineNumber: 246,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1189,18 +1164,18 @@ function PremiumUsersPage() {
                                                 children: "Actions"
                                             }, void 0, false, {
                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                lineNumber: 286,
+                                                lineNumber: 247,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                        lineNumber: 280,
+                                        lineNumber: 241,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 279,
+                                    lineNumber: 240,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -1216,12 +1191,12 @@ function PremiumUsersPage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 292,
+                                            lineNumber: 253,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                        lineNumber: 291,
+                                        lineNumber: 252,
                                         columnNumber: 19
                                     }, this) : searchedUsers.map((user)=>{
                                         // Check if user has premium subscription
@@ -1234,7 +1209,7 @@ function PremiumUsersPage() {
                                                     children: user.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 302,
+                                                    lineNumber: 263,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1242,7 +1217,7 @@ function PremiumUsersPage() {
                                                     children: user.email
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 303,
+                                                    lineNumber: 264,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1250,7 +1225,7 @@ function PremiumUsersPage() {
                                                     children: user.role || user.user_type
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 304,
+                                                    lineNumber: 265,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1258,7 +1233,7 @@ function PremiumUsersPage() {
                                                     children: new Date(user.created_at).toLocaleDateString()
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 305,
+                                                    lineNumber: 266,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1268,19 +1243,19 @@ function PremiumUsersPage() {
                                                         children: "Has Premium"
                                                     }, void 0, false, {
                                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                        lineNumber: 310,
+                                                        lineNumber: 271,
                                                         columnNumber: 29
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium",
                                                         children: "No Premium"
                                                     }, void 0, false, {
                                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                        lineNumber: 314,
+                                                        lineNumber: 275,
                                                         columnNumber: 29
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 308,
+                                                    lineNumber: 269,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1295,14 +1270,14 @@ function PremiumUsersPage() {
                                                                 size: 16
                                                             }, void 0, false, {
                                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                                lineNumber: 327,
+                                                                lineNumber: 288,
                                                                 columnNumber: 31
                                                             }, this),
                                                             "Already Premium"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                        lineNumber: 321,
+                                                        lineNumber: 282,
                                                         columnNumber: 29
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                                         size: "sm",
@@ -1316,48 +1291,48 @@ function PremiumUsersPage() {
                                                                 size: 16
                                                             }, void 0, false, {
                                                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                                lineNumber: 339,
+                                                                lineNumber: 300,
                                                                 columnNumber: 31
                                                             }, this),
                                                             "Assign Premium"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                        lineNumber: 331,
+                                                        lineNumber: 292,
                                                         columnNumber: 29
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 319,
+                                                    lineNumber: 280,
                                                     columnNumber: 25
                                                 }, this)
                                             ]
                                         }, user.id, true, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 301,
+                                            lineNumber: 262,
                                             columnNumber: 23
                                         }, this);
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 289,
+                                    lineNumber: 250,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                            lineNumber: 278,
+                            lineNumber: 239,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                        lineNumber: 277,
+                        lineNumber: 238,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                lineNumber: 255,
+                lineNumber: 216,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -1370,12 +1345,12 @@ function PremiumUsersPage() {
                                 children: "Assign Premium Access"
                             }, void 0, false, {
                                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                lineNumber: 358,
+                                lineNumber: 319,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                            lineNumber: 357,
+                            lineNumber: 318,
                             columnNumber: 11
                         }, this),
                         selectedUser && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1388,7 +1363,7 @@ function PremiumUsersPage() {
                                             children: "Assigning premium access to:"
                                         }, void 0, false, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 364,
+                                            lineNumber: 325,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1396,7 +1371,7 @@ function PremiumUsersPage() {
                                             children: selectedUser.name
                                         }, void 0, false, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 367,
+                                            lineNumber: 328,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1404,13 +1379,13 @@ function PremiumUsersPage() {
                                             children: selectedUser.email
                                         }, void 0, false, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 368,
+                                            lineNumber: 329,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 363,
+                                    lineNumber: 324,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1420,7 +1395,7 @@ function PremiumUsersPage() {
                                             children: "Plan Type"
                                         }, void 0, false, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 372,
+                                            lineNumber: 333,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1430,12 +1405,12 @@ function PremiumUsersPage() {
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                        lineNumber: 378,
+                                                        lineNumber: 339,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 377,
+                                                    lineNumber: 338,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1445,7 +1420,7 @@ function PremiumUsersPage() {
                                                             children: "Lifetime Premium"
                                                         }, void 0, false, {
                                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                            lineNumber: 381,
+                                                            lineNumber: 342,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1453,19 +1428,19 @@ function PremiumUsersPage() {
                                                             children: "Custom Duration (1 Year)"
                                                         }, void 0, false, {
                                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                            lineNumber: 382,
+                                                            lineNumber: 343,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                                    lineNumber: 380,
+                                                    lineNumber: 341,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 373,
+                                            lineNumber: 334,
                                             columnNumber: 17
                                         }, this),
                                         planType === "lifetime" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1473,19 +1448,19 @@ function PremiumUsersPage() {
                                             children: "User will have lifetime access - never expires"
                                         }, void 0, false, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 386,
+                                            lineNumber: 347,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 371,
+                                    lineNumber: 332,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                            lineNumber: 362,
+                            lineNumber: 323,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -1496,7 +1471,7 @@ function PremiumUsersPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 395,
+                                    lineNumber: 356,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$sc$2f$CineMarathi$2f$cinemarathi$2d$api$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1507,37 +1482,37 @@ function PremiumUsersPage() {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                            lineNumber: 399,
+                                            lineNumber: 360,
                                             columnNumber: 15
                                         }, this),
                                         "Assign Premium"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                                    lineNumber: 398,
+                                    lineNumber: 359,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                            lineNumber: 394,
+                            lineNumber: 355,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                    lineNumber: 356,
+                    lineNumber: 317,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-                lineNumber: 355,
+                lineNumber: 316,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/sc/CineMarathi/cinemarathi-api/app/admin/premium-users/page.jsx",
-        lineNumber: 181,
+        lineNumber: 142,
         columnNumber: 5
     }, this);
 }

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { LogIn } from "lucide-react"
+import { adminLogin } from "@/lib/admin-auth"
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("")
@@ -20,21 +21,7 @@ export default function AdminLogin() {
     setError("")
 
     try {
-      const response = await fetch("/api/admin-auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || "Login failed")
-        setLoading(false)
-        return
-      }
+      const data = await adminLogin(email, password)
 
       localStorage.setItem("adminToken", data.token)
       localStorage.setItem("adminUser", JSON.stringify(data.user))
@@ -42,7 +29,7 @@ export default function AdminLogin() {
       router.replace("/admin")
       router.refresh()
     } catch (err) {
-      setError("Connection error. Please try again.")
+      setError(err.message || "Connection error. Please try again.")
       console.error("[v0] Login error:", err)
     } finally {
       setLoading(false)
@@ -101,4 +88,7 @@ export default function AdminLogin() {
     </div>
   )
 }
+
+
+
 

@@ -19,6 +19,8 @@ import {
   Cell,
 } from "recharts"
 import { useAdminAuth } from "@/hooks/use-admin-auth"
+import { apiGet } from "@/lib/api"
+import { getAdminToken } from "@/lib/admin-auth"
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, isAuthenticated } = useAdminAuth()
@@ -37,44 +39,33 @@ export default function AdminDashboard() {
 
     const fetchAnalytics = async () => {
       try {
-        const token = localStorage.getItem("adminToken")
-        const response = await fetch("/api/admin/analytics/overview", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setStats(data.stats)
-          setChartData(data.chartData)
-          setPieData(data.pieData)
-        } else {
-          const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
-          console.error("[v0] Failed to fetch analytics:", errorData.error || response.statusText)
-          // Set default empty data
-          setStats({
-            totalUsers: 0,
-            activeListings: 0,
-            totalRevenue: 0,
-            growthRate: 0,
-          })
-          setChartData([
-            { name: "Jan", users: 0, revenue: 0 },
-            { name: "Feb", users: 0, revenue: 0 },
-            { name: "Mar", users: 0, revenue: 0 },
-            { name: "Apr", users: 0, revenue: 0 },
-            { name: "May", users: 0, revenue: 0 },
-            { name: "Jun", users: 0, revenue: 0 },
-          ])
-          setPieData([
-            { name: "Actors", value: 0 },
-            { name: "Technicians", value: 0 },
-            { name: "Production Houses", value: 0 },
-          ])
-        }
+        const token = getAdminToken()
+        const data = await apiGet("/admin/analytics/overview", { token })
+        setStats(data.stats)
+        setChartData(data.chartData)
+        setPieData(data.pieData)
       } catch (error) {
         console.error("[v0] Analytics fetch error:", error)
+        // Set default empty data
+        setStats({
+          totalUsers: 0,
+          activeListings: 0,
+          totalRevenue: 0,
+          growthRate: 0,
+        })
+        setChartData([
+          { name: "Jan", users: 0, revenue: 0 },
+          { name: "Feb", users: 0, revenue: 0 },
+          { name: "Mar", users: 0, revenue: 0 },
+          { name: "Apr", users: 0, revenue: 0 },
+          { name: "May", users: 0, revenue: 0 },
+          { name: "Jun", users: 0, revenue: 0 },
+        ])
+        setPieData([
+          { name: "Actors", value: 0 },
+          { name: "Technicians", value: 0 },
+          { name: "Production Houses", value: 0 },
+        ])
       } finally {
         setLoading(false)
       }
@@ -205,4 +196,7 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
+
+
 

@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { apiGet, apiPut, apiPost, apiDelete } from "@/lib/api"
+import { getAdminToken } from "@/lib/admin-auth"
 
 export default function CastingPage() {
   const { isAuthenticated, authLoading } = useAdminAuth()
@@ -44,17 +46,12 @@ export default function CastingPage() {
 
   const fetchProductionHouses = async () => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch("/api/admin/users?user_type=production_house", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const token = getAdminToken()
+      const data = await apiGet("/admin/users", { 
+        token,
+        params: { user_type: "production_house" }
       })
-
-      if (response.ok) {
-        const data = await response.json()
-        setProductionHouses(data.users || [])
-      }
+      setProductionHouses(data.users || [])
     } catch (error) {
       console.error("[v0] Failed to fetch production houses:", error)
     }
@@ -62,21 +59,10 @@ export default function CastingPage() {
 
   const fetchCastings = async () => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch("/api/admin/casting-calls", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        // The API now returns total_applications in the query
-        setCastings(data.casting_calls || data || [])
-      } else {
-        const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
-        console.error("[v0] Failed to fetch castings:", errorData.error || response.statusText)
-      }
+      const token = getAdminToken()
+      const data = await apiGet("/admin/casting-calls", { token })
+      // The API now returns total_applications in the query
+      setCastings(data.casting_calls || data || [])
     } catch (error) {
       console.error("[v0] Castings fetch error:", error)
     } finally {
@@ -86,49 +72,23 @@ export default function CastingPage() {
 
   const approveCasting = async (id) => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/casting-calls/${id}/approve`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ is_approved: true }),
-      })
-
-      if (response.ok) {
-        fetchCastings() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to approve casting call")
-      }
+      const token = getAdminToken()
+      await apiPut(`/admin/casting-calls/${id}/approve`, { is_approved: true }, { token })
+      fetchCastings() // Refresh the list
     } catch (error) {
       console.error("[v0] Approve casting error:", error)
-      alert("Error approving casting call")
+      alert(error.message || "Error approving casting call")
     }
   }
 
   const rejectCasting = async (id) => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/casting-calls/${id}/reject`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ is_approved: false }),
-      })
-
-      if (response.ok) {
-        fetchCastings() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to reject casting call")
-      }
+      const token = getAdminToken()
+      await apiPut(`/admin/casting-calls/${id}/reject`, { is_approved: false }, { token })
+      fetchCastings() // Refresh the list
     } catch (error) {
       console.error("[v0] Reject casting error:", error)
-      alert("Error rejecting casting call")
+      alert(error.message || "Error rejecting casting call")
     }
   }
 
@@ -136,25 +96,14 @@ export default function CastingPage() {
     if (!selectedCasting) return
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/casting-calls/${selectedCasting.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        setDeleteDialogOpen(false)
-        setSelectedCasting(null)
-        fetchCastings() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to delete casting call")
-      }
+      const token = getAdminToken()
+      await apiDelete(`/admin/casting-calls/${selectedCasting.id}`, { token })
+      setDeleteDialogOpen(false)
+      setSelectedCasting(null)
+      fetchCastings() // Refresh the list
     } catch (error) {
       console.error("[v0] Delete casting error:", error)
-      alert("Error deleting casting call")
+      alert(error.message || "Error deleting casting call")
     }
   }
 
@@ -166,45 +115,33 @@ export default function CastingPage() {
 
     setCreating(true)
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch("/api/admin/casting-calls", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          production_house_id: parseInt(formData.production_house_id),
-          min_age: formData.min_age ? parseInt(formData.min_age) : null,
-          max_age: formData.max_age ? parseInt(formData.max_age) : null,
-          budget_per_day: formData.budget_per_day ? parseFloat(formData.budget_per_day) : null,
-        }),
+      const token = getAdminToken()
+      await apiPost("/admin/casting-calls", {
+        ...formData,
+        production_house_id: parseInt(formData.production_house_id),
+        min_age: formData.min_age ? parseInt(formData.min_age) : null,
+        max_age: formData.max_age ? parseInt(formData.max_age) : null,
+        budget_per_day: formData.budget_per_day ? parseFloat(formData.budget_per_day) : null,
+      }, { token })
+      
+      setCreateDialogOpen(false)
+      setFormData({
+        production_house_id: "",
+        project_title: "",
+        role: "",
+        gender: "",
+        min_age: "",
+        max_age: "",
+        skills_required: "",
+        location: "",
+        budget_per_day: "",
+        audition_date: "",
+        description: "",
       })
-
-      if (response.ok) {
-        setCreateDialogOpen(false)
-        setFormData({
-          production_house_id: "",
-          project_title: "",
-          role: "",
-          gender: "",
-          min_age: "",
-          max_age: "",
-          skills_required: "",
-          location: "",
-          budget_per_day: "",
-          audition_date: "",
-          description: "",
-        })
-        fetchCastings() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to create casting call")
-      }
+      fetchCastings() // Refresh the list
     } catch (error) {
       console.error("[v0] Create casting error:", error)
-      alert("Error creating casting call")
+      alert(error.message || "Error creating casting call")
     } finally {
       setCreating(false)
     }

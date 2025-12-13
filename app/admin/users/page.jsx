@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Search, CheckCircle, Shield, Trash2, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { useAdminAuth } from "@/hooks/use-admin-auth"
+import { apiGet, apiPut, apiDelete } from "@/lib/api"
+import { getAdminToken } from "@/lib/admin-auth"
 
 export default function UsersPage() {
   const { isAuthenticated, authLoading } = useAdminAuth()
@@ -20,20 +22,10 @@ export default function UsersPage() {
 
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem("adminToken")
-        const response = await fetch("/api/admin/users", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setUsers(data.users || [])
-          setFilteredUsers(data.users || [])
-        } else {
-          console.error("[v0] Failed to fetch users")
-        }
+        const token = getAdminToken()
+        const data = await apiGet("/admin/users", { token })
+        setUsers(data.users || [])
+        setFilteredUsers(data.users || [])
       } catch (error) {
         console.error("[v0] Users fetch error:", error)
       } finally {
@@ -55,19 +47,9 @@ export default function UsersPage() {
 
   const verifyUser = async (id) => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/users/${id}/verify`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ is_verified: true }),
-      })
-
-      if (response.ok) {
-        setUsers(users.map((user) => (user.id === id ? { ...user, is_verified: true } : user)))
-      }
+      const token = getAdminToken()
+      await apiPut(`/admin/users/${id}/verify`, { is_verified: true }, { token })
+      setUsers(users.map((user) => (user.id === id ? { ...user, is_verified: true } : user)))
     } catch (error) {
       console.error("[v0] Verify user error:", error)
     }
@@ -75,18 +57,9 @@ export default function UsersPage() {
 
   const suspendUser = async (id) => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/users/${id}/suspend`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (response.ok) {
-        setUsers(users.filter((user) => user.id !== id))
-      }
+      const token = getAdminToken()
+      await apiPut(`/admin/users/${id}/suspend`, {}, { token })
+      setUsers(users.filter((user) => user.id !== id))
     } catch (error) {
       console.error("[v0] Suspend user error:", error)
     }
@@ -94,17 +67,9 @@ export default function UsersPage() {
 
   const deleteUser = async (id) => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/users/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        setUsers(users.filter((user) => user.id !== id))
-      }
+      const token = getAdminToken()
+      await apiDelete(`/admin/users/${id}`, { token })
+      setUsers(users.filter((user) => user.id !== id))
     } catch (error) {
       console.error("[v0] Delete user error:", error)
     }
@@ -204,4 +169,7 @@ export default function UsersPage() {
     </div>
   )
 }
+
+
+
 

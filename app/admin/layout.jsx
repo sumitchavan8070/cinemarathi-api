@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { BarChart3, Users, Film, CreditCard, Settings, LogOut, Menu, X, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { verifyAdminToken, adminLogout } from "@/lib/admin-auth"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: BarChart3 },
@@ -42,15 +43,9 @@ export default function AdminLayout({ children }) {
       }
 
       try {
-        const response = await fetch("/api/admin-auth/verify", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
+        const isValid = await verifyAdminToken(token)
 
-        if (!response.ok) {
+        if (!isValid) {
           localStorage.removeItem("adminToken")
           localStorage.removeItem("adminUser")
           setIsVerified(false)
@@ -88,13 +83,7 @@ export default function AdminLayout({ children }) {
       // Call logout API if token exists
       if (token) {
         try {
-          await fetch("/api/admin-auth/logout", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          })
+          await adminLogout(token)
         } catch (error) {
           console.error("[v0] Logout API error:", error)
         }
@@ -197,4 +186,7 @@ export default function AdminLayout({ children }) {
     </div>
   )
 }
+
+
+
 

@@ -19,16 +19,15 @@ export const clearAdminAuth = () => {
   localStorage.removeItem("adminUser")
 }
 
+import { apiPost, apiRequest } from "./api"
+
 export const verifyAdminToken = async (token: string): Promise<boolean> => {
   try {
-    const response = await fetch("/api/admin-auth/verify", {
+    await apiRequest("/admin-auth/verify", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+      token,
     })
-    return response.ok
+    return true
   } catch (error) {
     console.error("[v0] Token verification error:", error)
     return false
@@ -36,32 +35,12 @@ export const verifyAdminToken = async (token: string): Promise<boolean> => {
 }
 
 export const adminLogin = async (email: string, password: string) => {
-  const response = await fetch("/api/admin-auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.error || "Login failed")
-  }
-
-  return data
+  return apiPost("/admin-auth/login", { email, password })
 }
 
 export const adminLogout = async (token: string) => {
   try {
-    await fetch("/api/admin-auth/logout", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
+    await apiPost("/admin-auth/logout", undefined, { token })
   } catch (error) {
     console.error("[v0] Logout error:", error)
   }

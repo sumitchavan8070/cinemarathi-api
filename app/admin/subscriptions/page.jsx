@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Trash2, Edit2, Plus } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAdminAuth } from "@/hooks/use-admin-auth"
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api"
+import { getAdminToken } from "@/lib/admin-auth"
 
 export default function SubscriptionsPage() {
   const { isAuthenticated, authLoading } = useAdminAuth()
@@ -42,24 +44,12 @@ export default function SubscriptionsPage() {
 
   const fetchSubscriptions = async () => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch("/api/admin/subscriptions", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setSubscriptions(data.subscriptions || [])
-      } else {
-        const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
-        console.error("[v0] Failed to fetch subscriptions:", errorData.error || response.statusText)
-        alert(`Failed to fetch subscriptions: ${errorData.error || response.statusText}`)
-      }
+      const token = getAdminToken()
+      const data = await apiGet("/admin/subscriptions", { token })
+      setSubscriptions(data.subscriptions || [])
     } catch (error) {
       console.error("[v0] Subscriptions fetch error:", error)
-      alert(`Error fetching subscriptions: ${error instanceof Error ? error.message : "Unknown error"}`)
+      alert(`Error fetching subscriptions: ${error.message || "Unknown error"}`)
     } finally {
       setLoading(false)
     }
@@ -67,17 +57,9 @@ export default function SubscriptionsPage() {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch("/api/admin/users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setUsers(data.users || [])
-      }
+      const token = getAdminToken()
+      const data = await apiGet("/admin/users", { token })
+      setUsers(data.users || [])
     } catch (error) {
       console.error("[v0] Failed to fetch users:", error)
     }
@@ -85,11 +67,8 @@ export default function SubscriptionsPage() {
 
   const fetchPlans = async () => {
     try {
-      const response = await fetch("/api/premium/plans")
-      if (response.ok) {
-        const data = await response.json()
-        setPlans(data || [])
-      }
+      const data = await apiGet("/premium/plans")
+      setPlans(data || [])
     } catch (error) {
       console.error("[v0] Failed to fetch plans:", error)
     }
@@ -110,31 +89,19 @@ export default function SubscriptionsPage() {
     if (!selectedSubscription) return
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/subscriptions/${selectedSubscription.id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          plan_id: parseInt(editForm.plan_id),
-          start_date: editForm.start_date,
-          end_date: editForm.end_date,
-          is_active: editForm.is_active,
-        }),
-      })
-
-      if (response.ok) {
-        setEditDialogOpen(false)
-        fetchSubscriptions() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to update subscription")
-      }
+      const token = getAdminToken()
+      await apiPut(`/admin/subscriptions/${selectedSubscription.id}`, {
+        plan_id: parseInt(editForm.plan_id),
+        start_date: editForm.start_date,
+        end_date: editForm.end_date,
+        is_active: editForm.is_active,
+      }, { token })
+      
+      setEditDialogOpen(false)
+      fetchSubscriptions() // Refresh the list
     } catch (error) {
       console.error("[v0] Update subscription error:", error)
-      alert("Error updating subscription")
+      alert(error.message || "Error updating subscription")
     }
   }
 
@@ -142,25 +109,14 @@ export default function SubscriptionsPage() {
     if (!selectedSubscription) return
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/subscriptions/${selectedSubscription.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        setDeleteDialogOpen(false)
-        setSelectedSubscription(null)
-        fetchSubscriptions() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to delete subscription")
-      }
+      const token = getAdminToken()
+      await apiDelete(`/admin/subscriptions/${selectedSubscription.id}`, { token })
+      setDeleteDialogOpen(false)
+      setSelectedSubscription(null)
+      fetchSubscriptions() // Refresh the list
     } catch (error) {
       console.error("[v0] Delete subscription error:", error)
-      alert("Error deleting subscription")
+      alert(error.message || "Error deleting subscription")
     }
   }
 
@@ -171,39 +127,27 @@ export default function SubscriptionsPage() {
     }
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch("/api/admin/subscriptions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: parseInt(createForm.user_id),
-          plan_id: parseInt(createForm.plan_id),
-          start_date: createForm.start_date,
-          end_date: createForm.end_date,
-          is_active: createForm.is_active ? 1 : 0,
-        }),
+      const token = getAdminToken()
+      await apiPost("/admin/subscriptions", {
+        user_id: parseInt(createForm.user_id),
+        plan_id: parseInt(createForm.plan_id),
+        start_date: createForm.start_date,
+        end_date: createForm.end_date,
+        is_active: createForm.is_active ? 1 : 0,
+      }, { token })
+      
+      setCreateDialogOpen(false)
+      setCreateForm({
+        user_id: "",
+        plan_id: "",
+        start_date: "",
+        end_date: "",
+        is_active: true,
       })
-
-      if (response.ok) {
-        setCreateDialogOpen(false)
-        setCreateForm({
-          user_id: "",
-          plan_id: "",
-          start_date: "",
-          end_date: "",
-          is_active: true,
-        })
-        fetchSubscriptions() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to create subscription")
-      }
+      fetchSubscriptions() // Refresh the list
     } catch (error) {
       console.error("[v0] Create subscription error:", error)
-      alert("Error creating subscription")
+      alert(error.message || "Error creating subscription")
     }
   }
 
@@ -550,4 +494,7 @@ export default function SubscriptionsPage() {
     </div>
   )
 }
+
+
+
 

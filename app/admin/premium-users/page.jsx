@@ -20,6 +20,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Search, Crown, Trash2, UserPlus, CheckCircle } from "lucide-react"
+import { apiGet, apiPut, apiDelete } from "@/lib/api"
+import { getAdminToken } from "@/lib/admin-auth"
 
 export default function PremiumUsersPage() {
   const [searchedUsers, setSearchedUsers] = useState([])
@@ -46,26 +48,18 @@ export default function PremiumUsersPage() {
     const searchUsers = async () => {
       setSearching(true)
       try {
-        const token = localStorage.getItem("adminToken")
-        const response = await fetch("/api/admin/users", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          const users = data.users || []
-          
-          // Filter users based on search term
-          const filtered = users.filter(
-            (user) =>
-              user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              user.email.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-          
-          setSearchedUsers(filtered)
-        }
+        const token = getAdminToken()
+        const data = await apiGet("/admin/users", { token })
+        const users = data.users || []
+        
+        // Filter users based on search term
+        const filtered = users.filter(
+          (user) =>
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        
+        setSearchedUsers(filtered)
       } catch (error) {
         console.error("[Premium Users] Search error:", error)
       } finally {
@@ -80,19 +74,9 @@ export default function PremiumUsersPage() {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem("adminToken")
-
-      // Fetch premium users
-      const premiumResponse = await fetch("/api/admin/premium-users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (premiumResponse.ok) {
-        const premiumData = await premiumResponse.json()
-        setPremiumUsers(premiumData.premium_users || [])
-      }
+      const token = getAdminToken()
+      const premiumData = await apiGet("/admin/premium-users", { token })
+      setPremiumUsers(premiumData.premium_users || [])
     } catch (error) {
       console.error("[Premium Users] Error:", error)
     } finally {
@@ -104,36 +88,24 @@ export default function PremiumUsersPage() {
     if (!selectedUser) return
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/users/${selectedUser.id}/assign-premium`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          is_lifetime: planType === "lifetime",
-          plan_id: null, // Let API determine the plan
-        }),
-      })
-
-      if (response.ok) {
-        setAssignDialogOpen(false)
-        setSelectedUser(null)
-        await fetchData() // Refresh premium users list
-        // Re-trigger search if we have a search term
-        if (searchTerm.trim() !== "") {
-          const currentSearch = searchTerm
-          setSearchTerm("")
-          setTimeout(() => setSearchTerm(currentSearch), 100)
-        }
-      } else {
-        const errorData = await response.json()
-        alert(errorData.error || "Failed to assign premium")
+      const token = getAdminToken()
+      await apiPost(`/admin/users/${selectedUser.id}/assign-premium`, {
+        is_lifetime: planType === "lifetime",
+        plan_id: null, // Let API determine the plan
+      }, { token })
+      
+      setAssignDialogOpen(false)
+      setSelectedUser(null)
+      await fetchData() // Refresh premium users list
+      // Re-trigger search if we have a search term
+      if (searchTerm.trim() !== "") {
+        const currentSearch = searchTerm
+        setSearchTerm("")
+        setTimeout(() => setSearchTerm(currentSearch), 100)
       }
     } catch (error) {
       console.error("[Premium Users] Assign error:", error)
-      alert("Error assigning premium access")
+      alert(error.message || "Error assigning premium access")
     }
   }
 
@@ -143,29 +115,18 @@ export default function PremiumUsersPage() {
     }
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`/api/admin/users/${userId}/remove-premium`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        await fetchData() // Refresh premium users list
-        // Re-trigger search if we have a search term
-        if (searchTerm.trim() !== "") {
-          const currentSearch = searchTerm
-          setSearchTerm("")
-          setTimeout(() => setSearchTerm(currentSearch), 100)
-        }
-      } else {
-        const errorData = await response.json()
-        alert(errorData.error || "Failed to remove premium access")
+      const token = getAdminToken()
+      await apiDelete(`/admin/users/${userId}/remove-premium`, { token })
+      await fetchData() // Refresh premium users list
+      // Re-trigger search if we have a search term
+      if (searchTerm.trim() !== "") {
+        const currentSearch = searchTerm
+        setSearchTerm("")
+        setTimeout(() => setSearchTerm(currentSearch), 100)
       }
     } catch (error) {
       console.error("[Premium Users] Remove error:", error)
-      alert("Error removing premium access")
+      alert(error.message || "Error removing premium access")
     }
   }
 

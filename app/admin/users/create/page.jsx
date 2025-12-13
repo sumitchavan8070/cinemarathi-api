@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ArrowLeft, UserPlus, Crown } from "lucide-react"
+import { apiPost } from "@/lib/api"
+import { getAdminToken } from "@/lib/admin-auth"
 
 export default function CreateUserPage() {
   const router = useRouter()
@@ -51,25 +53,11 @@ export default function CreateUserPage() {
     setLoading(true)
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch("/api/admin/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        router.push("/admin/users")
-      } else {
-        setError(data.error || "Failed to create user")
-      }
+      const token = getAdminToken()
+      await apiPost("/admin/users", formData, { token })
+      router.push("/admin/users")
     } catch (err) {
-      setError("Error creating user. Please try again.")
+      setError(err.message || "Error creating user. Please try again.")
       console.error("[Create User] Error:", err)
     } finally {
       setLoading(false)
