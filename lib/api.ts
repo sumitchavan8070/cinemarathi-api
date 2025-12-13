@@ -29,15 +29,26 @@ const getEnvironment = (): "live" | "local" => {
 const getApiBaseUrl = (): string => {
   const environment = getEnvironment()
   
-  // In browser/client-side
+  // In browser/client-side - prefer relative URLs to avoid CORS issues
+  // Next.js rewrites will proxy /api/* requests to the actual API server
   if (typeof window !== "undefined") {
+    // Check if we should force absolute URLs (for cross-origin scenarios)
+    const useAbsoluteUrl = process.env.NEXT_PUBLIC_USE_ABSOLUTE_API === 'true' || 
+                          process.env.USE_ABSOLUTE_API === 'true'
+    
+    if (!useAbsoluteUrl) {
+      // Use relative URL - Next.js rewrites will handle it (avoids CORS)
+      return "/api"
+    }
+    
+    // Use absolute URL (only if explicitly configured)
     if (environment === "live") {
       return process.env.NEXT_PUBLIC_API_BASE_URL_LIVE || "https://api.cine.fluttertales.tech/api"
     }
     return process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL || "http://localhost:3001/api"
   }
   
-  // On server-side
+  // On server-side - always use absolute URL
   if (environment === "live") {
     return process.env.API_BASE_URL_LIVE || process.env.NEXT_PUBLIC_API_BASE_URL_LIVE || "https://api.cine.fluttertales.tech/api"
   }
@@ -48,7 +59,16 @@ const getApiBaseUrl = (): string => {
 const normalizeBaseUrl = (url: string): string => {
   let normalized = url.trim()
   
-  // Remove trailing slash
+  // If it's a relative URL, return as is
+  if (normalized.startsWith("/")) {
+    // Remove trailing slash if present
+    if (normalized.endsWith("/") && normalized.length > 1) {
+      normalized = normalized.slice(0, -1)
+    }
+    return normalized
+  }
+  
+  // For absolute URLs, remove trailing slash
   if (normalized.endsWith("/")) {
     normalized = normalized.slice(0, -1)
   }
@@ -75,12 +95,14 @@ const buildUrl = (endpoint: string): string => {
   // Remove leading slash if present
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint
   
-  // If base URL already includes /api, don't add it again
-  if (API_BASE_URL.endsWith("/api")) {
+  // If base URL is relative (starts with /), use it directly
+  if (API_BASE_URL.startsWith("/")) {
     return `${API_BASE_URL}/${cleanEndpoint}`
   }
   
-  return `${API_BASE_URL}/${cleanEndpoint}`
+  // For absolute URLs, ensure proper formatting
+  const baseUrl = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL
+  return `${baseUrl}/${cleanEndpoint}`
 }
 
 /**
@@ -126,20 +148,68 @@ export const apiRequest = async <T = any>(
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
   }
 
-  // Make the request with credentials
-  const response = await fetch(url, {
-    ...fetchOptions,
-    headers,
-    credentials: 'include', // Include cookies in cross-origin requests
-    mode: 'cors', // Enable CORS
-  })
+  // Determine if this is a cross-origin request
+  const isCrossOrigin = typeof window !== "undefined" && url.startsWith("http")
+  
+  // Make the request
+  let response: Response
+  try {
+    response = await fetch(url, {
+      ...fetchOptions,
+      headers,
+      // Only include credentials and CORS mode for cross-origin requests
+      ...(isCrossOrigin ? {
+        credentials: 'include' as RequestCredentials, // Include cookies in cross-origin requests
+        mode: 'cors' as RequestMode, // Enable CORS
+      } : {}),
+    })
+  } catch (error: any) {
+    // Network error or CORS error
+    console.error('[API] Fetch error:', error)
+    console.error('[API] URL:', url)
+    console.error('[API] Headers:', headers)
+    console.error('[API] Is cross-origin:', isCrossOrigin)
+    
+    // Provide more helpful error message
+    if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
+      const errorMsg = isCrossOrigin
+        ? `Network/CORS error: Unable to reach the API server at ${url}. ` +
+          `Please check if the server is running and CORS is properly configured. ` +
+          `Original error: ${error.message}`
+        : `Network error: Unable to reach the API server at ${url}. ` +
+          `Please check if the server is running. ` +
+          `Original error: ${error.message}`
+      throw new Error(errorMsg)
+    }
+    throw error
+  }
+
+  // Check if response is ok before parsing
+  if (!response.ok) {
+    // Try to parse error message from response
+    let errorMessage = `Request failed with status ${response.status}`
+    try {
+      const errorData = await response.json()
+      errorMessage = errorData.error || errorData.message || errorMessage
+    } catch {
+      // If response is not JSON, use status text
+      errorMessage = response.statusText || errorMessage
+    }
+    throw new Error(errorMessage)
+  }
 
   // Parse response
-  const data = await response.json()
-
-  // Throw error if response is not ok
-  if (!response.ok) {
-    throw new Error(data.error || data.message || `Request failed with status ${response.status}`)
+  let data: T
+  try {
+    const text = await response.text()
+    if (!text) {
+      return {} as T // Return empty object if response is empty
+    }
+    data = JSON.parse(text)
+  } catch (error: any) {
+    console.error('[API] JSON parse error:', error)
+    console.error('[API] Response text:', await response.text())
+    throw new Error(`Failed to parse response as JSON: ${error.message}`)
   }
 
   return data
