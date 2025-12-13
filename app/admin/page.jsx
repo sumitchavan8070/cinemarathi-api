@@ -88,49 +88,69 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6 bg-card border border-border">
+        <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Total Users</p>
-              <h3 className="text-3xl font-bold text-card-foreground">{stats.totalUsers}</h3>
-              <p className="text-xs text-green-600 mt-2">+12% this month</p>
+              <p className="text-sm text-blue-100 mb-2 font-medium">Total Users</p>
+              <h3 className="text-4xl font-bold mb-1">{stats.totalUsers}</h3>
+              <p className="text-xs text-blue-100 flex items-center gap-1">
+                <TrendingUp size={14} />
+                +12% this month
+              </p>
             </div>
-            <Users className="text-primary" size={40} />
+            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <Users className="text-white" size={32} />
+            </div>
           </div>
         </Card>
 
-        <Card className="p-6 bg-card border border-border">
+        <Card className="p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Active Listings</p>
-              <h3 className="text-3xl font-bold text-card-foreground">{stats.activeListings}</h3>
-              <p className="text-xs text-green-600 mt-2">+8% this week</p>
+              <p className="text-sm text-purple-100 mb-2 font-medium">Active Listings</p>
+              <h3 className="text-4xl font-bold mb-1">{stats.activeListings}</h3>
+              <p className="text-xs text-purple-100 flex items-center gap-1">
+                <TrendingUp size={14} />
+                +8% this week
+              </p>
             </div>
-            <Film className="text-primary" size={40} />
+            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <Film className="text-white" size={32} />
+            </div>
           </div>
         </Card>
 
-        <Card className="p-6 bg-card border border-border">
+        <Card className="p-6 bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Total Revenue</p>
-              <h3 className="text-3xl font-bold text-card-foreground">
+              <p className="text-sm text-green-100 mb-2 font-medium">Total Revenue</p>
+              <h3 className="text-4xl font-bold mb-1">
                 ₹{stats.totalRevenue >= 1000 ? (stats.totalRevenue / 1000).toFixed(0) + 'K' : stats.totalRevenue}
               </h3>
-              <p className="text-xs text-green-600 mt-2">+15% this month</p>
+              <p className="text-xs text-green-100 flex items-center gap-1">
+                <TrendingUp size={14} />
+                +15% this month
+              </p>
             </div>
-            <CreditCard className="text-primary" size={40} />
+            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <CreditCard className="text-white" size={32} />
+            </div>
           </div>
         </Card>
 
-        <Card className="p-6 bg-card border border-border">
+        <Card className="p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Growth Rate</p>
-              <h3 className="text-3xl font-bold text-card-foreground">{stats.growthRate}%</h3>
-              <p className="text-xs text-green-600 mt-2">vs last quarter</p>
+              <p className="text-sm text-orange-100 mb-2 font-medium">Growth Rate</p>
+              <h3 className="text-4xl font-bold mb-1">{stats.growthRate}%</h3>
+              <p className="text-xs text-orange-100 flex items-center gap-1">
+                <TrendingUp size={14} />
+                vs last quarter
+              </p>
             </div>
-            <TrendingUp className="text-primary" size={40} />
+            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <TrendingUp className="text-white" size={32} />
+            </div>
           </div>
         </Card>
       </div>
@@ -138,25 +158,44 @@ export default function AdminDashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Line Chart */}
-        <Card className="col-span-2 p-6 bg-card border border-border">
-          <h3 className="text-lg font-semibold mb-4 text-card-foreground">User Growth & Revenue</h3>
+        <Card className="col-span-2 p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-slate-900">User Growth & Revenue</h3>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span className="text-sm text-slate-600">Users</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <span className="text-sm text-slate-600">Revenue</span>
+              </div>
+            </div>
+          </div>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis yAxisId="left" />
-              <YAxis yAxisId="right" orientation="right" />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="name" stroke="#64748b" />
+              <YAxis yAxisId="left" stroke="#64748b" />
+              <YAxis yAxisId="right" orientation="right" stroke="#64748b" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'white', 
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }} 
+              />
               <Legend />
-              <Line yAxisId="left" type="monotone" dataKey="users" stroke="#ef4444" strokeWidth={2} />
-              <Line yAxisId="right" type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} />
+              <Line yAxisId="left" type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', r: 4 }} />
+              <Line yAxisId="right" type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={3} dot={{ fill: '#22c55e', r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </Card>
 
         {/* Pie Chart */}
-        <Card className="p-6 bg-card border border-border">
-          <h3 className="text-lg font-semibold mb-4 text-card-foreground">User Distribution</h3>
+        <Card className="p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <h3 className="text-xl font-bold text-slate-900 mb-6">User Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -164,8 +203,8 @@ export default function AdminDashboard() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, value }) => `${name}: ${value}`}
-                outerRadius={80}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -173,23 +212,38 @@ export default function AdminDashboard() {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'white', 
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }} 
+              />
             </PieChart>
           </ResponsiveContainer>
         </Card>
       </div>
 
       {/* Bar Chart */}
-      <Card className="p-6 bg-card border border-border">
-        <h3 className="text-lg font-semibold mb-4 text-card-foreground">Monthly Performance</h3>
+      <Card className="p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+        <h3 className="text-xl font-bold text-slate-900 mb-6">Monthly Performance</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="name" stroke="#64748b" />
+            <YAxis stroke="#64748b" />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'white', 
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }} 
+            />
             <Legend />
-            <Bar dataKey="users" fill="#ef4444" />
-            <Bar dataKey="revenue" fill="#22c55e" />
+            <Bar dataKey="users" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="revenue" fill="#22c55e" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </Card>

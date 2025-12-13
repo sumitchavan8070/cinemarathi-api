@@ -71,27 +71,32 @@ export default function CreateUserPage() {
           variant="ghost"
           size="sm"
           onClick={() => router.push("/admin/users")}
-          className="gap-2"
+          className="gap-2 hover:bg-slate-100 rounded-xl transition-all duration-200"
         >
           <ArrowLeft size={16} />
           Back to Users
         </Button>
-        <h1 className="text-3xl font-bold text-card-foreground">Create New User</h1>
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            Create New User
+          </h1>
+          <p className="text-slate-500 mt-1">Add a new user to the platform</p>
+        </div>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-8 bg-white border-0 shadow-xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
-              <p className="text-sm text-destructive">{error}</p>
+            <div className="p-4 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl">
+              <p className="text-sm font-semibold text-red-700">{error}</p>
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name">
-                Name <span className="text-destructive">*</span>
+              <Label htmlFor="name" className="text-sm font-semibold text-slate-700">
+                Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
@@ -100,13 +105,14 @@ export default function CreateUserPage() {
                 onChange={handleChange}
                 required
                 placeholder="Enter full name"
+                className="h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
               />
             </div>
 
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email">
-                Email <span className="text-destructive">*</span>
+              <Label htmlFor="email" className="text-sm font-semibold text-slate-700">
+                Email <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="email"
@@ -116,13 +122,14 @@ export default function CreateUserPage() {
                 onChange={handleChange}
                 required
                 placeholder="user@example.com"
+                className="h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
               />
             </div>
 
             {/* Password */}
             <div className="space-y-2">
-              <Label htmlFor="password">
-                Password <span className="text-destructive">*</span>
+              <Label htmlFor="password" className="text-sm font-semibold text-slate-700">
+                Password <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="password"
@@ -133,13 +140,14 @@ export default function CreateUserPage() {
                 required
                 minLength={6}
                 placeholder="Minimum 6 characters"
+                className="h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
               />
             </div>
 
             {/* User Type */}
             <div className="space-y-2">
-              <Label htmlFor="user_type">
-                User Type <span className="text-destructive">*</span>
+              <Label htmlFor="user_type" className="text-sm font-semibold text-slate-700">
+                User Type <span className="text-red-500">*</span>
               </Label>
               <Select
                 value={formData.user_type}
@@ -162,7 +170,7 @@ export default function CreateUserPage() {
 
             {/* Gender */}
             <div className="space-y-2">
-              <Label htmlFor="gender">Gender</Label>
+              <Label htmlFor="gender" className="text-sm font-semibold text-slate-700">Gender</Label>
               <Select
                 value={formData.gender}
                 onValueChange={(value) => handleSelectChange("gender", value)}
@@ -180,31 +188,33 @@ export default function CreateUserPage() {
 
             {/* Date of Birth */}
             <div className="space-y-2">
-              <Label htmlFor="dob">Date of Birth</Label>
+              <Label htmlFor="dob" className="text-sm font-semibold text-slate-700">Date of Birth</Label>
               <Input
                 id="dob"
                 name="dob"
                 type="date"
                 value={formData.dob}
                 onChange={handleChange}
+                className="h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
               />
             </div>
 
             {/* Location */}
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location" className="text-sm font-semibold text-slate-700">Location</Label>
               <Input
                 id="location"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
                 placeholder="City, State"
+                className="h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
               />
             </div>
 
             {/* Contact */}
             <div className="space-y-2">
-              <Label htmlFor="contact">Contact Number</Label>
+              <Label htmlFor="contact" className="text-sm font-semibold text-slate-700">Contact Number</Label>
               <Input
                 id="contact"
                 name="contact"
@@ -212,12 +222,13 @@ export default function CreateUserPage() {
                 value={formData.contact}
                 onChange={handleChange}
                 placeholder="+91 1234567890"
+                className="h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
               />
             </div>
 
             {/* Portfolio URL */}
             <div className="space-y-2">
-              <Label htmlFor="portfolio_url">Portfolio URL</Label>
+              <Label htmlFor="portfolio_url" className="text-sm font-semibold text-slate-700">Portfolio URL</Label>
               <Input
                 id="portfolio_url"
                 name="portfolio_url"
@@ -225,25 +236,27 @@ export default function CreateUserPage() {
                 value={formData.portfolio_url}
                 onChange={handleChange}
                 placeholder="https://example.com/portfolio"
+                className="h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
               />
             </div>
 
             {/* Availability */}
             <div className="space-y-2">
-              <Label htmlFor="availability">Availability</Label>
+              <Label htmlFor="availability" className="text-sm font-semibold text-slate-700">Availability</Label>
               <Input
                 id="availability"
                 name="availability"
                 value={formData.availability}
                 onChange={handleChange}
                 placeholder="Available / Busy / Not Available"
+                className="h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
               />
             </div>
           </div>
 
           {/* Bio */}
           <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
+            <Label htmlFor="bio" className="text-sm font-semibold text-slate-700">Bio</Label>
             <Textarea
               id="bio"
               name="bio"
@@ -251,11 +264,12 @@ export default function CreateUserPage() {
               onChange={handleChange}
               rows={4}
               placeholder="Enter user bio or description"
+              className="border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
             />
           </div>
 
           {/* Is Verified */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-100">
             <input
               type="checkbox"
               id="is_verified"
@@ -263,16 +277,16 @@ export default function CreateUserPage() {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, is_verified: e.target.checked }))
               }
-              className="rounded border-gray-300"
+              className="w-5 h-5 rounded border-2 border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
             />
-            <Label htmlFor="is_verified" className="cursor-pointer">
+            <Label htmlFor="is_verified" className="cursor-pointer text-sm font-semibold text-slate-700">
               Mark user as verified
             </Label>
           </div>
 
           {/* Is Premium */}
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div className="flex items-center space-x-2">
+          <div className="p-5 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl">
+            <div className="flex items-center space-x-3">
               <input
                 type="checkbox"
                 id="is_premium"
@@ -280,24 +294,28 @@ export default function CreateUserPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, is_premium: e.target.checked }))
                 }
-                className="rounded border-gray-300"
+                className="w-5 h-5 rounded border-2 border-slate-300 text-yellow-600 focus:ring-yellow-500 cursor-pointer"
               />
               <Label htmlFor="is_premium" className="cursor-pointer flex items-center gap-2">
-                <Crown className="text-yellow-600" size={18} />
-                <span className="font-medium">Set as Premium User (Lifetime Premium)</span>
+                <Crown className="text-yellow-600" size={20} />
+                <span className="font-bold text-slate-900">Set as Premium User (Lifetime Premium)</span>
               </Label>
             </div>
             {formData.is_premium && (
-              <p className="text-xs text-muted-foreground mt-2 ml-6">
+              <p className="text-sm text-slate-600 mt-3 ml-8 font-medium">
                 User will be assigned lifetime premium access upon creation
               </p>
             )}
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex gap-4 pt-4">
-            <Button type="submit" disabled={loading} className="gap-2">
-              <UserPlus size={16} />
+          <div className="flex gap-4 pt-6 border-t border-slate-200">
+            <Button 
+              type="submit" 
+              disabled={loading} 
+              className="gap-2 h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+            >
+              <UserPlus size={18} />
               {loading ? "Creating..." : "Create User"}
             </Button>
             <Button
@@ -305,6 +323,7 @@ export default function CreateUserPage() {
               variant="outline"
               onClick={() => router.push("/admin/users")}
               disabled={loading}
+              className="h-12 border-2 border-slate-300 hover:bg-slate-50 rounded-xl transition-all duration-200"
             >
               Cancel
             </Button>

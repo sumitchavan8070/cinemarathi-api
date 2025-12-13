@@ -155,17 +155,17 @@ export default function SubscriptionsPage() {
     // Handle is_active as boolean or 0/1 (tinyint)
     const active = isActive === true || isActive === 1 || isActive === '1'
     if (!active) {
-      return "bg-red-100 text-red-800"
+      return "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/30"
     }
     if (!endDate) {
-      return "bg-green-100 text-green-800"
+      return "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30"
     }
     const end = new Date(endDate)
     const now = new Date()
     if (isNaN(end.getTime()) || end < now) {
-      return "bg-gray-100 text-gray-800"
+      return "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg shadow-slate-500/30"
     }
-    return "bg-green-100 text-green-800"
+    return "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30"
   }
 
   const getStatusText = (isActive, endDate) => {
@@ -212,21 +212,34 @@ export default function SubscriptionsPage() {
   if (loading || authLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted-foreground">Loading subscriptions...</p>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Loading subscriptions...</p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-card-foreground">Subscriptions</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            Subscriptions
+          </h1>
+          <p className="text-slate-500 mt-1">Manage user subscriptions and premium plans</p>
+        </div>
         <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Active Revenue</p>
-            <p className="text-2xl font-bold text-green-600">₹{totalRevenue}</p>
+          <div className="px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 text-right">
+            <p className="text-xs text-green-700 font-medium mb-0.5">Active Revenue</p>
+            <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              ₹{totalRevenue}
+            </p>
           </div>
-          <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+          <Button 
+            onClick={() => setCreateDialogOpen(true)} 
+            className="gap-2 h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+          >
             <Plus size={18} />
             Create Subscription
           </Button>
@@ -234,95 +247,113 @@ export default function SubscriptionsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6 bg-card border border-border">
-          <p className="text-sm text-muted-foreground mb-2">Total Subscriptions</p>
-          <h3 className="text-3xl font-bold text-card-foreground">{subscriptions.length}</h3>
-          <p className="text-xs text-green-600 mt-2">{activeSubscriptions.length} active</p>
+        <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <p className="text-sm text-blue-100 mb-2 font-medium">Total Subscriptions</p>
+          <h3 className="text-4xl font-bold mb-1">{subscriptions.length}</h3>
+          <p className="text-xs text-blue-100 flex items-center gap-1">
+            <span className="font-semibold">{activeSubscriptions.length}</span> active
+          </p>
         </Card>
-        <Card className="p-6 bg-card border border-border">
-          <p className="text-sm text-muted-foreground mb-2">Current Profit</p>
-          <h3 className="text-3xl font-bold text-card-foreground">₹{totalRevenue}</h3>
-          <p className="text-xs text-green-600 mt-2">Total active subscriptions value</p>
+        <Card className="p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <p className="text-sm text-green-100 mb-2 font-medium">Current Profit</p>
+          <h3 className="text-4xl font-bold mb-1">₹{totalRevenue}</h3>
+          <p className="text-xs text-green-100">Total active subscriptions value</p>
         </Card>
-        <Card className="p-6 bg-card border border-border">
-          <p className="text-sm text-muted-foreground mb-2">MRR</p>
-          <h3 className="text-3xl font-bold text-card-foreground">₹{totalRevenue}</h3>
-          <p className="text-xs text-green-600 mt-2">Monthly Recurring</p>
+        <Card className="p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <p className="text-sm text-purple-100 mb-2 font-medium">MRR</p>
+          <h3 className="text-4xl font-bold mb-1">₹{totalRevenue}</h3>
+          <p className="text-xs text-purple-100">Monthly Recurring Revenue</p>
         </Card>
       </div>
 
-      <Card className="overflow-hidden bg-card border border-border">
+      <Card className="overflow-hidden bg-white border-0 shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-muted border-b border-border">
+            <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">User</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Plan</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Amount</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Period</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">User</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Plan</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Amount</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Period</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-slate-100">
               {subscriptions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
-                    No subscriptions found
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                        <CreditCard className="text-slate-400" size={24} />
+                      </div>
+                      <p className="text-slate-500 font-medium">No subscriptions found</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 subscriptions.map((sub) => {
                   const status = getStatusText(sub.is_active, sub.end_date)
                   return (
-                    <tr key={sub.id} className="hover:bg-muted/50 transition-colors">
-                      <td className="px-6 py-3 text-sm text-card-foreground font-medium">
-                        <div>
-                          <div>{sub.user_name}</div>
-                          <div className="text-xs text-muted-foreground">{sub.email}</div>
+                    <tr key={sub.id} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 transition-all duration-200 group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                            {sub.user_name?.charAt(0)?.toUpperCase() || "U"}
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold text-slate-900">{sub.user_name}</div>
+                            <div className="text-xs text-slate-500">{sub.email}</div>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-6 py-3 text-sm text-card-foreground">{sub.plan_name}</td>
-                      <td className="px-6 py-3 text-sm font-semibold text-card-foreground">₹{Number(sub.price) || 0}</td>
-                      <td className="px-6 py-3 text-sm text-muted-foreground">
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">
+                          {sub.plan_name}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                          ₹{Number(sub.price) || 0}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
                         {sub.start_date ? new Date(sub.start_date).toLocaleDateString() : "N/A"} to{" "}
                         {sub.end_date ? new Date(sub.end_date).toLocaleDateString() : "N/A"}
-                  </td>
-                  <td className="px-6 py-3 text-sm">
+                      </td>
+                      <td className="px-6 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold ${getStatusBadge(
                             sub.is_active,
                             sub.end_date,
                           )}`}
                         >
                           {status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3">
-                    <div className="flex gap-2">
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
                           <Button
                             size="sm"
-                            variant="outline"
                             onClick={() => handleEdit(sub)}
-                            className="gap-2 bg-transparent"
+                            className="gap-1.5 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                           >
-                        <Edit2 size={14} />
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
+                            <Edit2 size={14} />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
                             onClick={() => {
                               setSelectedSubscription(sub)
                               setDeleteDialogOpen(true)
                             }}
-                        className="gap-2"
-                      >
-                        <Trash2 size={14} />
+                            className="gap-1.5 h-8 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                          >
+                            <Trash2 size={14} />
                             Delete
-                      </Button>
-                    </div>
-                  </td>
+                          </Button>
+                        </div>
+                      </td>
                 </tr>
                   )
                 })

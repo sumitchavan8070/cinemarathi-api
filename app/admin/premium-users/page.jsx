@@ -133,74 +133,106 @@ export default function PremiumUsersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted-foreground">Loading...</p>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Loading...</p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-card-foreground">Premium Users Management</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            Premium Users Management
+          </h1>
+          <p className="text-slate-500 mt-1">Manage premium and lifetime subscriptions</p>
+        </div>
       </div>
 
       {/* Premium Users List */}
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-card-foreground flex items-center gap-2">
-            <Crown className="text-yellow-500" size={20} />
-            Lifetime/Premium Users ({premiumUsers.length})
+      <Card className="p-6 bg-white border-0 shadow-xl">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+              <Crown className="text-white" size={24} />
+            </div>
+            <div>
+              <span className="bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                Premium Users
+              </span>
+              <span className="ml-2 px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 rounded-full text-sm font-bold">
+                {premiumUsers.length}
+              </span>
+            </div>
           </h2>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-muted border-b border-border">
+            <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">User</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Email</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Plan</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Start Date</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">User</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Email</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Plan</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Start Date</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-white">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-slate-100">
               {premiumUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
-                    No premium users found
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                        <Crown className="text-slate-400" size={24} />
+                      </div>
+                      <p className="text-slate-500 font-medium">No premium users found</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 premiumUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-muted/50 transition-colors">
-                    <td className="px-6 py-3 text-sm text-card-foreground">{user.name}</td>
-                    <td className="px-6 py-3 text-sm text-card-foreground">{user.email}</td>
-                    <td className="px-6 py-3 text-sm text-muted-foreground">
-                      {user.plan_name || `Plan #${user.plan_id}`}
-                      {user.is_lifetime && (
-                        <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                          Lifetime
-                        </span>
-                      )}
+                  <tr key={user.id} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 transition-all duration-200 group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                          {user.name?.charAt(0)?.toUpperCase() || "U"}
+                        </div>
+                        <span className="text-sm font-semibold text-slate-900">{user.name}</span>
+                      </div>
                     </td>
-                    <td className="px-6 py-3 text-sm">
-                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                    <td className="px-6 py-4 text-sm text-slate-700">{user.email}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">
+                          {user.plan_name || `Plan #${user.plan_id}`}
+                        </span>
+                        {user.is_lifetime && (
+                          <span className="px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-full text-xs font-bold shadow-lg shadow-yellow-500/30">
+                            Lifetime
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-xs font-bold shadow-lg shadow-green-500/30">
                         Active
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-sm text-muted-foreground">
+                    <td className="px-6 py-4 text-sm text-slate-600">
                       {new Date(user.start_date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-3">
+                    <td className="px-6 py-4">
                       <Button
                         size="sm"
-                        variant="destructive"
                         onClick={() => handleRemovePremium(user.id)}
-                        className="gap-2"
+                        className="gap-1.5 h-8 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                         Remove
                       </Button>
                     </td>
@@ -213,45 +245,62 @@ export default function PremiumUsersPage() {
       </Card>
 
       {/* Search and Assign Premium */}
-      <Card className="p-6">
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold text-card-foreground mb-4">
+      <Card className="p-6 bg-white border-0 shadow-xl">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+              <UserPlus className="text-white" size={20} />
+            </div>
             Search Users to Assign Premium
           </h2>
           <div className="relative">
-            <Search className="absolute left-3 top-3 text-muted-foreground" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
             <Input
               placeholder="Search users by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-full max-w-md"
+              className="pl-10 w-full max-w-md h-11 border-2 border-slate-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all duration-200"
             />
           </div>
           {searchTerm.trim() && (
-            <p className="text-sm text-muted-foreground mt-2">
-              {searching ? "Searching..." : `Found ${searchedUsers.length} user(s)`}
+            <p className="text-sm text-slate-600 mt-3 font-medium">
+              {searching ? (
+                <span className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                  Searching...
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 rounded-lg font-semibold">
+                  Found {searchedUsers.length} user(s)
+                </span>
+              )}
             </p>
           )}
         </div>
 
         {searchTerm.trim() !== "" && !searching && (
-          <div className="overflow-x-auto mt-4">
+          <div className="overflow-x-auto mt-6">
             <table className="w-full">
-              <thead className="bg-muted border-b border-border">
+              <thead className="bg-gradient-to-r from-slate-900 to-slate-800">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Email</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">User Type</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Joined</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Subscription Status</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Actions</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Name</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Email</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-white">User Type</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Joined</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Subscription Status</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-white">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-slate-100">
                 {searchedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
-                      No users found matching "{searchTerm}"
+                    <td colSpan={6} className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                          <Search className="text-slate-400" size={24} />
+                        </div>
+                        <p className="text-slate-500 font-medium">No users found matching "{searchTerm}"</p>
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -259,33 +308,43 @@ export default function PremiumUsersPage() {
                     // Check if user has premium subscription
                     const hasPremium = premiumUsers.some(pu => pu.id === user.id)
                     return (
-                      <tr key={user.id} className="hover:bg-muted/50 transition-colors">
-                        <td className="px-6 py-3 text-sm text-card-foreground">{user.name}</td>
-                        <td className="px-6 py-3 text-sm text-card-foreground">{user.email}</td>
-                        <td className="px-6 py-3 text-sm text-muted-foreground">{user.role || user.user_type}</td>
-                        <td className="px-6 py-3 text-sm text-muted-foreground">
+                      <tr key={user.id} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 transition-all duration-200 group">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                              {user.name?.charAt(0)?.toUpperCase() || "U"}
+                            </div>
+                            <span className="text-sm font-semibold text-slate-900">{user.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-700">{user.email}</td>
+                        <td className="px-6 py-4">
+                          <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold capitalize">
+                            {user.role || user.user_type}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-600">
                           {new Date(user.created_at).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-3 text-sm">
+                        <td className="px-6 py-4">
                           {hasPremium ? (
-                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                            <span className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-xs font-bold shadow-lg shadow-green-500/30">
                               Has Premium
                             </span>
                           ) : (
-                            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                            <span className="px-3 py-1.5 bg-gradient-to-r from-slate-400 to-slate-500 text-white rounded-full text-xs font-bold shadow-lg shadow-slate-500/30">
                               No Premium
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-3">
+                        <td className="px-6 py-4">
                           {hasPremium ? (
                             <Button
                               size="sm"
-                              variant="outline"
                               disabled
-                              className="gap-2"
+                              className="gap-1.5 h-8 bg-slate-300 text-slate-500 font-semibold rounded-lg cursor-not-allowed"
                             >
-                              <Crown size={16} />
+                              <Crown size={14} />
                               Already Premium
                             </Button>
                           ) : (
@@ -295,9 +354,9 @@ export default function PremiumUsersPage() {
                                 setSelectedUser(user)
                                 setAssignDialogOpen(true)
                               }}
-                              className="gap-2"
+                              className="gap-1.5 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                             >
-                              <Crown size={16} />
+                              <Crown size={14} />
                               Assign Premium
                             </Button>
                           )}

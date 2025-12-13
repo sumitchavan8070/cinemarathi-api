@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { CheckCircle, XCircle, Eye, Trash2, Plus } from "lucide-react"
+import { CheckCircle, XCircle, Eye, Trash2, Plus, Film } from "lucide-react"
 import { useAdminAuth } from "@/hooks/use-admin-auth"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -156,37 +156,51 @@ export default function CastingPage() {
     // If is_approved is null/undefined, check by audition date
     if (casting.is_approved === null || casting.is_approved === undefined) {
       if (auditionDate && auditionDate < now) {
-        return { className: "bg-gray-100 text-gray-800", text: "closed" }
+        return { className: "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg shadow-slate-500/30", text: "closed" }
       }
-      return { className: "bg-green-100 text-green-800", text: "active" }
+      return { className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30", text: "active" }
     }
 
     if (!isApproved) {
-      return { className: "bg-yellow-100 text-yellow-800", text: "pending" }
+      return { className: "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-lg shadow-yellow-500/30", text: "pending" }
     }
     if (auditionDate && auditionDate < now) {
-      return { className: "bg-gray-100 text-gray-800", text: "closed" }
+      return { className: "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg shadow-slate-500/30", text: "closed" }
     }
-    return { className: "bg-green-100 text-green-800", text: "active" }
+    return { className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30", text: "approved" }
   }
 
   if (loading || authLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted-foreground">Loading casting calls...</p>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Loading casting calls...</p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-card-foreground">Casting Management</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            Casting Management
+          </h1>
+          <p className="text-slate-500 mt-1">Manage all casting calls and applications</p>
+        </div>
         <div className="flex items-center gap-4">
-          <div className="text-sm text-muted-foreground">
-            Total Castings: <span className="font-bold text-card-foreground">{castings.length}</span>
+          <div className="px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl border border-purple-200">
+            <div className="text-xs text-slate-600 font-medium mb-0.5">Total Castings</div>
+            <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              {castings.length}
+            </div>
           </div>
-          <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+          <Button 
+            onClick={() => setCreateDialogOpen(true)} 
+            className="gap-2 h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+          >
             <Plus size={18} />
             Create Casting Call
           </Button>
@@ -194,8 +208,16 @@ export default function CastingPage() {
       </div>
 
       {castings.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-muted-foreground">No casting calls found</p>
+        <Card className="p-12 text-center bg-white border-0 shadow-xl">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
+              <Film className="text-purple-600" size={32} />
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-slate-900 mb-1">No casting calls found</p>
+              <p className="text-slate-500 text-sm">Create your first casting call to get started</p>
+            </div>
+          </div>
         </Card>
       ) : (
         <div className="grid gap-6">
@@ -205,83 +227,100 @@ export default function CastingPage() {
             const hasApprovalColumn = casting.is_approved !== null && casting.is_approved !== undefined
 
             return (
-              <Card key={casting.id} className="p-6 bg-card border border-border hover:shadow-lg transition-shadow">
+              <Card key={casting.id} className="p-6 bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01] group">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-card-foreground mb-2">{casting.project_title}</h3>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      <span className="font-medium">Production:</span> {casting.production_house_name}
-                    </p>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      <span className="font-medium">Role:</span> {casting.role}
-                    </p>
-                    {casting.location && (
-                      <p className="text-sm text-muted-foreground">
-                        <span className="font-medium">Location:</span> {casting.location}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <Film className="text-white" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-1">{casting.project_title}</h3>
+                        <p className="text-sm text-slate-500">
+                          <span className="font-semibold text-slate-700">Production:</span> {casting.production_house_name}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <p className="text-sm text-slate-600">
+                        <span className="font-semibold text-slate-800">Role:</span> {casting.role}
                       </p>
-                    )}
+                      {casting.location && (
+                        <p className="text-sm text-slate-600">
+                          <span className="font-semibold text-slate-800">Location:</span> {casting.location}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <Badge className={status.className}>{status.text}</Badge>
+                  <Badge className={`${status.className} px-4 py-1.5 text-xs font-bold shadow-lg`}>
+                    {status.text}
+                  </Badge>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-6 py-4 border-y border-border">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Gender</p>
-                    <p className="text-sm font-semibold text-card-foreground">{casting.gender || "Any"}</p>
+                <div className="grid grid-cols-3 gap-4 mb-6 py-4 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-slate-100">
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500 mb-1.5 font-medium">Gender</p>
+                    <p className="text-sm font-bold text-slate-900">{casting.gender || "Any"}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Applications</p>
-                    <p className="text-2xl font-bold text-card-foreground">{Number(casting.total_applications) || 0}</p>
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500 mb-1.5 font-medium">Applications</p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                      {Number(casting.total_applications) || 0}
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Posted</p>
-                    <p className="text-sm text-card-foreground">
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500 mb-1.5 font-medium">Posted</p>
+                    <p className="text-sm font-semibold text-slate-700">
                       {casting.created_at ? new Date(casting.created_at).toLocaleDateString() : "N/A"}
                     </p>
                   </div>
                 </div>
 
                 {casting.budget_per_day && (
-                  <div className="mb-4">
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-medium">Budget:</span> ₹{casting.budget_per_day} per day
+                  <div className="mb-4 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <p className="text-sm font-semibold text-slate-700">
+                      <span className="text-green-600">Budget:</span> ₹{casting.budget_per_day} <span className="text-slate-500">per day</span>
                     </p>
                   </div>
                 )}
 
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2">
                   <Button
-                    variant="outline"
                     onClick={() => {
                       setSelectedCasting(casting)
                       setViewDialogOpen(true)
                     }}
-                    className="gap-2 bg-transparent"
+                    className="gap-2 h-9 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                   >
-                    <Eye size={16} />
+                    <Eye size={14} />
                     View Details
                   </Button>
                   {hasApprovalColumn && !isApproved && (
                     <>
-                      <Button onClick={() => approveCasting(casting.id)} className="gap-2 bg-green-600 hover:bg-green-700">
-                        <CheckCircle size={16} />
+                      <Button 
+                        onClick={() => approveCasting(casting.id)} 
+                        className="gap-2 h-9 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                      >
+                        <CheckCircle size={14} />
                         Approve
                       </Button>
-                      <Button onClick={() => rejectCasting(casting.id)} variant="destructive" className="gap-2">
-                        <XCircle size={16} />
+                      <Button 
+                        onClick={() => rejectCasting(casting.id)} 
+                        className="gap-2 h-9 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                      >
+                        <XCircle size={14} />
                         Reject
                       </Button>
                     </>
                   )}
                   <Button
-                    variant="destructive"
                     onClick={() => {
                       setSelectedCasting(casting)
                       setDeleteDialogOpen(true)
                     }}
-                    className="gap-2"
+                    className="gap-2 h-9 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} />
                     Delete
                   </Button>
                 </div>
