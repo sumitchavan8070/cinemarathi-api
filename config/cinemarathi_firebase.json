@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "cinemarathi-3fcf0",
+  "private_key_id": "70200634d87bd27beef1b19a8c2f53c3aca101c8",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDJTeztC9Fmxyji\nP7J5Yy3rEp5WJLU6QmI7xX5rHHjFTuSr2jhXytrojo9g5o9xTgL1W31Pjo6xxBj0\ntVBtMNUTNXGPaCY3H1JHBXoU7E/0qSZCkjrrRbgEDHvywMIVrNlfgqk7pSsT/CVI\ng4Z/LbrYJbYhjlSLa2jZhV0rpLPTwxdswHvWdOvpYaq2OfuU6pbGLB/noIqHCnLS\ngO9CZTBxT2eIVEUEQSwZradXGHW6b47/RXaXUGoNrfxsxNsfF5hpXVouB1+SqirO\n6hY6qyqlvSK4DEaMIpIlobgpu4B6vfsAjBTf+RYlEeEoNnCLvJg6PVryFyPpntG7\ndyxgnYJ9AgMBAAECggEAXFclE/WkWDeKbwJWDa2rnhXb0Nsk0LUr14w3+c1FLwkK\nBzTiPI9ejGf8qDAK46gr3j3aBRj5Jt0zr2jOnE/WpemRjn1xbj6tYMvH3PorkSjY\nVpg6c7r29tB9OPUn8oZn7hKDK8uPr6qttY4zr3ocJ9NgsRLXgF7EaWduPjtejAe1\nG/UnoO7SCcewxCM572cMdBPO0CWDJfQYyUcf289ZRPJjjexg1RoAJI4q1IRHQ2ve\n3a7w6g4WJmSC/vKcv66dR+lS0UJIPY9VpvkniZ9+YbeZSI9XK0iRn/Oc0gHVdFlc\n2Soz1udZltkMGUUAxx6tSkmnbjprXHvQqrDMXuUyVwKBgQDlDVWGgLPtJ2lzIR/n\n4a2HH6RMaNtG/aJbvVbabds04plev4Q665kxskCTH3km6Ac3NTlucNzLFruWOxB9\nR//gVhssKB3dJTiiF9fyU/24xNG3WEyUWuk+RZ8B08VOI2OdRKcx4UHgZRu7nWfD\nb4U/XhIWWYXEBWae1Z96t7TIewKBgQDg/OCb6XhU86BXDrnTGHNjOLG5Swka40p1\nR2poMJ7e53waTF/3whaL+SwM9d5D+te90GjoBELz3YJpXdcHEWz132bkjvG38NsA\niicbBFdgsTyZO7+C0r/7MYhYWjjySiWY/DdX2FR8CBd391ig30zgEz58XIAKUsjT\njHaTz527ZwKBgQDXKbZsedwK69nfv38UOOfkJbIV4O4S+tEYMn0zBL1FKZN+8JML\nMiOfDl4glhEdnhqhHstLVpPh5wHh9qvfs9HGb7xot2qOQZe4lINTbNjLR3/lJfoR\n5nByAb6DXeZbJ10876/LaFmUrAXoMM23Rbw6sWh2PDQu1g/3Jp8ADS+ynwKBgQC7\nZKTH98wMJed024UXOBRTnlMZHFB3Hr1TtaoBIg4RZwlM9jQwrm4NI/r2yIraYEH1\njXLzXSlO6T7H+CszbeYtXGfdEtpt9KTUbD1qGVGV7cmlb8hxdIwG8xi3Tl6EIBH0\nvI50EnE75Zl2iIQ/af4j3KN8/aZ/8rfmy+Wv84tTHQKBgHQ6wz+UtX4PFHUALvvm\nfErI62lYR4bnlcQBSBEe+6uN7XAmm3z9lO13xRRsVysFgz4Oj59gw5U1S8v1Xx6P\nKQl1aMLIdyJYWjfyj6uW3rsFj0hNBy+maVjIcOIUQpfC+LnOeARGYyny3SeY6ccB\n1THsm57uhGCoJH/jo3Z9vZLL\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@cinemarathi-3fcf0.iam.gserviceaccount.com",
+  "client_id": "106361235621972535305",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40cinemarathi-3fcf0.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

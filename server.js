@@ -21,6 +21,10 @@ const notificationsRoutes = require("./api/routes/notifications")
 const portfolioRoutes = require("./api/routes/portfolio")
 const eventsRoutes = require("./api/routes/events")
 const adminAnalyticsRoutes = require("./api/routes/admin-analytics")
+const fcmRoutes = require("./api/routes/fcm")
+const uploadRoutes = require("./api/routes/upload")
+const rolesRoutes = require("./api/routes/roles")
+const bannersRoutes = require("./api/routes/banners")
 
 const app = express()
 
@@ -144,6 +148,10 @@ app.use("/api/notifications", notificationsRoutes)
 app.use("/api/portfolio", portfolioRoutes)
 app.use("/api/events", eventsRoutes)
 app.use("/api/admin/analytics", adminAnalyticsRoutes)
+app.use("/api/upload", uploadRoutes)
+app.use("/api/fcm", fcmRoutes)
+app.use("/api/roles", rolesRoutes)
+app.use("/api/admin/banners", bannersRoutes)
 
 // Health check
 app.get("/", (req, res) => {

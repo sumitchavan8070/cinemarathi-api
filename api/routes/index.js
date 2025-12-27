@@ -7,4 +7,5 @@ module.exports = {
   portfolio: require("./portfolio"),
   events: require("./events"),
   adminAnalytics: require("./admin-analytics"),
+  fcm: require("./fcm"),
 }

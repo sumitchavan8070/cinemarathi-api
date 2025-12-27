@@ -15,6 +15,7 @@
     "hash-password": "node scripts/generate-password-hash.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.948.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -54,9 +55,11 @@
     "dotenv": "latest",
     "embla-carousel-react": "8.5.1",
     "express": "latest",
+    "firebase-admin": "^13.6.0",
     "input-otp": "1.4.1",
     "jsonwebtoken": "latest",
     "lucide-react": "^0.454.0",
+    "multer": "^2.0.2",
     "mysql2": "latest",
     "next": "16.0.7",
     "next-themes": "^0.4.6",

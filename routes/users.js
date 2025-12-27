@@ -1,8 +1,63 @@
 const express = require("express")
 const { verifyToken } = require("../middleware/auth")
 const pool = require("../config/database")
+const { s3Client, getPublicUrl } = require("../config/s3")
+const { ListObjectsV2Command } = require("@aws-sdk/client-s3")
 
 const router = express.Router()
+
+const BANNER_FOLDER = "app/banner"
+const S3_BUCKET = process.env.S3_BUCKET_NAME || process.env.AWS_S3_BUCKET
+
+/**
+ * Helper function to get banners from S3
+ * Returns formatted banner list for dashboard
+ */
+async function getBannersFromS3() {
+  try {
+    if (!S3_BUCKET) {
+      console.warn("[Dashboard] S3 bucket is not configured, returning empty banner list")
+      return []
+    }
+
+    const command = new ListObjectsV2Command({
+      Bucket: S3_BUCKET,
+      Prefix: `${BANNER_FOLDER}/`,
+    })
+
+    const response = await s3Client.send(command)
+
+    const banners = (response.Contents || [])
+      .filter((item) => {
+        if (!item.Key) return false
+        const ext = item.Key.toLowerCase()
+        return ext.endsWith(".jpg") || ext.endsWith(".jpeg") || ext.endsWith(".png") || ext.endsWith(".webp")
+      })
+      .map((item, index) => {
+        const filename = item.Key.split("/").pop()
+        const url = getPublicUrl(item.Key)
+        // Extract number from filename for ID
+        const idMatch = filename.match(/(\d+)/)
+        const id = idMatch ? parseInt(idMatch[1]) : index + 1
+        
+        return {
+          id: id,
+          title: `Banner ${id}`,
+          image: url,
+          link: "https://www.google.com", // Default link, can be customized later
+        }
+      })
+      .sort((a, b) => {
+        // Sort by ID (extracted from filename)
+        return a.id - b.id
+      })
+
+    return banners
+  } catch (error) {
+    console.error("[Dashboard] Error fetching banners from S3:", error)
+    return []
+  }
+}
 
 // Updated Profile API - Returns formatted profile data
 router.get("/profile", verifyToken, async (req, res) => {
@@ -13,7 +68,7 @@ router.get("/profile", verifyToken, async (req, res) => {
     // Get user data
     const [users] = await connection.execute(
       `SELECT id, name, email, contact, user_type, gender, dob, location, 
-       bio, portfolio_url, availability, is_verified, created_at 
+       bio, portfolio_url, availability, profile_image_url, portfolio_images, is_verified, created_at 
        FROM users WHERE id = ?`,
       [userId],
     )
@@ -96,6 +151,39 @@ router.get("/profile", verifyToken, async (req, res) => {
       }
     }
 
+    // Get portfolio images
+    let portfolio = []
+    if (user.portfolio_images) {
+      try {
+        let portfolioUrls = user.portfolio_images
+        
+        // Handle different data types
+        if (typeof portfolioUrls === 'string') {
+          // Try to parse as JSON first
+          try {
+            portfolioUrls = JSON.parse(portfolioUrls)
+          } catch (e) {
+            // If parsing fails, it's a plain string URL - wrap it in array
+            portfolioUrls = [portfolioUrls]
+          }
+        }
+        
+        // Ensure it's an array
+        if (Array.isArray(portfolioUrls)) {
+          portfolio = portfolioUrls
+            .filter(url => url && typeof url === 'string') // Filter out invalid entries
+            .map((url, index) => ({
+              id: index + 1,
+              url: url,
+              imageUrl: url, // For compatibility
+              index: index + 1,
+            }))
+        }
+      } catch (parseError) {
+        console.warn("[Profile API] Error parsing portfolio_images:", parseError.message)
+      }
+    }
+
     connection.release()
 
     // Format profession display
@@ -120,12 +208,15 @@ router.get("/profile", verifyToken, async (req, res) => {
         name: user.name,
         profession: professionDisplay,
         location: user.location || "India",
-        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name || user.id}`,
+        avatar:
+          user.profile_image_url ||
+          `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name || user.id}`,
         is_verified: user.is_verified === 1 || user.is_verified === true,
         experience_years: experienceYears || 0,
         bio: user.bio || "",
         skills: Array.isArray(skills) ? skills : [],
-        social: Object.keys(social).length > 0 ? social : {}
+        social: Object.keys(social).length > 0 ? social : {},
+        portfolio: portfolio
       }
     })
   } catch (error) {
@@ -206,32 +297,45 @@ router.get("/profile/portfolio", verifyToken, async (req, res) => {
     let portfolio = []
 
     try {
-      // First check if table exists by trying a simple query
-      const [items] = await connection.execute(
-        `SELECT id, media_type, media_url, title, description, work_date, created_at
-         FROM portfolio_items 
-         WHERE user_id = ? 
-         ORDER BY created_at DESC`,
+      // First try to get from new portfolio_images column
+      const [userPortfolio] = await connection.execute(
+        `SELECT portfolio_images FROM users WHERE id = ?`,
         [userId]
       )
 
-      console.log(`[Portfolio API] Found ${items.length} portfolio items for user ${userId}`)
-
-      portfolio = items.map(item => ({
-        id: item.id,
-        type: item.media_type || "image", // Default to image if type is null
-        url: item.media_url || "",
-        title: item.title || null,
-        description: item.description || null,
-        work_date: item.work_date ? (item.work_date.toISOString ? item.work_date.toISOString().split('T')[0] : item.work_date) : null
-      }))
-    } catch (portfolioError) {
-      console.error("[Portfolio API] Error fetching portfolio:", portfolioError.message)
-      console.error("[Portfolio API] Error details:", portfolioError)
-      // Check if it's a table doesn't exist error
-      if (portfolioError.message.includes("doesn't exist") || portfolioError.message.includes("Unknown table")) {
-        console.warn("[Portfolio API] portfolio_items table does not exist. Portfolio will be empty.")
+      if (userPortfolio.length > 0 && userPortfolio[0].portfolio_images) {
+        try {
+          let portfolioUrls = userPortfolio[0].portfolio_images
+          
+          // Handle different data types
+          if (typeof portfolioUrls === 'string') {
+            // Try to parse as JSON first
+            try {
+              portfolioUrls = JSON.parse(portfolioUrls)
+            } catch (e) {
+              // If parsing fails, it's a plain string URL - wrap it in array
+              portfolioUrls = [portfolioUrls]
+            }
+          }
+          
+          // Ensure it's an array
+          if (Array.isArray(portfolioUrls)) {
+            portfolio = portfolioUrls
+              .filter(url => url && typeof url === 'string') // Filter out invalid entries
+              .map((url, index) => ({
+                id: index + 1,
+                url: url,
+                imageUrl: url, // For compatibility with Flutter app
+                index: index + 1,
+              }))
+            console.log(`[Portfolio API] Found ${portfolio.length} portfolio images for user ${userId}`)
+          }
+        } catch (parseError) {
+          console.warn("[Portfolio API] Error parsing portfolio_images:", parseError.message)
+        }
       }
+    } catch (error) {
+      console.error("[Portfolio API] Error fetching portfolio:", error.message)
       portfolio = []
     }
 
@@ -336,7 +440,7 @@ router.get("/profile/full", verifyToken, async (req, res) => {
     // 1. Get profile data
     const [users] = await connection.execute(
       `SELECT id, name, email, contact, user_type, gender, dob, location, 
-       bio, portfolio_url, availability, is_verified, created_at 
+       bio, portfolio_url, availability, profile_image_url, is_verified, created_at 
        FROM users WHERE id = ?`,
       [userId],
     )
@@ -443,26 +547,47 @@ router.get("/profile/full", verifyToken, async (req, res) => {
       projects = projs[0]?.count || 0
     } catch { projects = Math.floor(Math.random() * 50) + 10 }
 
-    // 3. Get portfolio
+    // 3. Get portfolio (from portfolio_images JSON array)
     let portfolio = []
     try {
-      const [items] = await connection.execute(
-        `SELECT id, media_type, media_url, title, description, work_date, created_at
-         FROM portfolio_items 
-         WHERE user_id = ? 
-         ORDER BY created_at DESC`,
+      // First try to get from new portfolio_images column
+      const [userPortfolio] = await connection.execute(
+        `SELECT portfolio_images FROM users WHERE id = ?`,
         [userId]
       )
-      portfolio = items.map(item => ({
-        id: item.id,
-        type: item.media_type || "image",
-        url: item.media_url || "",
-        title: item.title || null,
-        description: item.description || null,
-        work_date: item.work_date || null
-      }))
+      
+      if (userPortfolio.length > 0 && userPortfolio[0].portfolio_images) {
+        try {
+          let portfolioUrls = userPortfolio[0].portfolio_images
+          
+          // Handle different data types
+          if (typeof portfolioUrls === 'string') {
+            // Try to parse as JSON first
+            try {
+              portfolioUrls = JSON.parse(portfolioUrls)
+            } catch (e) {
+              // If parsing fails, it's a plain string URL - wrap it in array
+              portfolioUrls = [portfolioUrls]
+            }
+          }
+          
+          // Ensure it's an array
+          if (Array.isArray(portfolioUrls)) {
+            portfolio = portfolioUrls
+              .filter(url => url && typeof url === 'string') // Filter out invalid entries
+              .map((url, index) => ({
+                id: index + 1,
+                url: url,
+                imageUrl: url, // For compatibility
+                index: index + 1,
+              }))
+          }
+        } catch (parseError) {
+          console.warn("[Full Profile] Error parsing portfolio_images:", parseError.message)
+        }
+      }
     } catch (portfolioError) {
-      console.warn("[Full Profile] portfolio_items table may not exist or error:", portfolioError.message)
+      console.warn("[Full Profile] Error fetching portfolio:", portfolioError.message)
       portfolio = []
     }
 
@@ -542,7 +667,9 @@ router.get("/profile/full", verifyToken, async (req, res) => {
         name: user.name,
         profession: professionDisplay,
         location: user.location || "Mumbai, Maharashtra",
-        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name || user.id}`,
+        avatar:
+          user.profile_image_url ||
+          `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name || user.id}`,
         experience_years: experienceYears || 0,
         is_verified: user.is_verified === 1 || user.is_verified === true,
         bio: user.bio || "",
@@ -565,30 +692,56 @@ router.get("/profile/full", verifyToken, async (req, res) => {
 
 router.put("/profile", verifyToken, async (req, res) => {
   try {
-    const { 
-      name, 
-      contact, 
-      gender, 
-      dob, 
-      location, 
-      bio, 
-      portfolio_url, 
-      availability 
+    const {
+      // Basic user fields
+      name,
+      contact,
+      gender,
+      dob,
+      location,
+      bio,
+      portfolio_url,
+      availability,
+      // Actor-specific fields
+      skills,
+      profession,
+      instagram,
+      youtube,
+      experience_years,
+      category,
+      height_cm,
+      weight_kg,
+      audition_link,
+      awards,
     } = req.body
-    
-    const connection = await pool.getConnection()
 
-    // Build dynamic update query based on provided fields
+    const connection = await pool.getConnection()
+    const userId = req.user.id
+
+    // Get user type to determine if actor fields should be updated
+    const [users] = await connection.execute("SELECT user_type, role_id FROM users WHERE id = ?", [userId])
+
+    if (users.length === 0) {
+      connection.release()
+      return res.status(404).json({ error: "User not found" })
+    }
+
+    const userType = users[0].user_type
+    const currentRoleId = users[0].role_id
+
+    // Build dynamic update query for users table
     const updates = []
     const values = []
-    
+
     if (name !== undefined) {
       updates.push("name = ?")
       values.push(name)
     }
     if (contact !== undefined) {
+      // Truncate contact to max 20 characters to fit database column
+      const contactValue = contact ? String(contact).substring(0, 20) : null
       updates.push("contact = ?")
-      values.push(contact)
+      values.push(contactValue)
     }
     if (gender !== undefined) {
       updates.push("gender = ?")
@@ -615,22 +768,158 @@ router.put("/profile", verifyToken, async (req, res) => {
       values.push(availability)
     }
 
-    if (updates.length === 0) {
-      connection.release()
-      return res.status(400).json({ error: "No fields to update" })
+    // Handle user_type update and role assignment
+    let newUserType = userType
+    if (req.body.user_type !== undefined) {
+      newUserType = req.body.user_type
+      updates.push("user_type = ?")
+      values.push(newUserType)
     }
 
-    values.push(req.user.id)
-    await connection.execute(
-      `UPDATE users SET ${updates.join(", ")} WHERE id = ?`,
-      values
-    )
+    // Update users table if there are changes
+    if (updates.length > 0) {
+      values.push(userId)
+      await connection.execute(`UPDATE users SET ${updates.join(", ")} WHERE id = ?`, values)
+    }
+
+    // Update role_id if user_type changed or if role_id is not set
+    if (req.body.user_type !== undefined || currentRoleId === null) {
+      try {
+        const targetUserType = req.body.user_type || userType
+        // Get role_id from roles table based on user_type
+        const [roles] = await connection.execute(
+          "SELECT id FROM roles WHERE slug = ? AND is_active = 1 LIMIT 1",
+          [targetUserType.toLowerCase()]
+        )
+
+        if (roles.length > 0) {
+          // Update user with role_id
+          await connection.execute(
+            "UPDATE users SET role_id = ? WHERE id = ?",
+            [roles[0].id, userId]
+          )
+          console.log(`[Update Profile] Updated role_id to ${roles[0].id} (${targetUserType}) for user ${userId}`)
+        } else {
+          // If role not found, assign default 'user' role
+          const [defaultRole] = await connection.execute(
+            "SELECT id FROM roles WHERE slug = 'user' AND is_active = 1 LIMIT 1",
+            []
+          )
+          if (defaultRole.length > 0) {
+            await connection.execute(
+              "UPDATE users SET role_id = ? WHERE id = ?",
+              [defaultRole[0].id, userId]
+            )
+            console.log(`[Update Profile] Assigned default role_id ${defaultRole[0].id} (user) to user ${userId}`)
+          }
+        }
+      } catch (roleError) {
+        console.error("[Update Profile] Error updating role:", roleError.message)
+        // Continue with profile update even if role update fails
+      }
+    }
+
+    // Handle actor-specific fields
+    if (userType === "actor") {
+      // Check if actor record exists
+      const [existingActor] = await connection.execute(
+        "SELECT user_id FROM actors WHERE user_id = ?",
+        [userId]
+      )
+
+      const actorUpdates = []
+      const actorValues = []
+
+      if (skills !== undefined) {
+        // Handle skills - can be array or string
+        let skillsValue = null
+        if (skills) {
+          if (Array.isArray(skills)) {
+            skillsValue = JSON.stringify(skills)
+          } else if (typeof skills === "string") {
+            // Try to parse as JSON, if fails use as is
+            try {
+              JSON.parse(skills)
+              skillsValue = skills
+            } catch {
+              // If not valid JSON, wrap in array
+              skillsValue = JSON.stringify([skills])
+            }
+          }
+        }
+        actorUpdates.push("skills = ?")
+        actorValues.push(skillsValue)
+      }
+
+      if (profession !== undefined) {
+        actorUpdates.push("profession = ?")
+        actorValues.push(profession || null)
+      }
+      if (category !== undefined) {
+        actorUpdates.push("category = ?")
+        actorValues.push(category || null)
+      }
+      if (experience_years !== undefined) {
+        actorUpdates.push("experience_years = ?")
+        actorValues.push(experience_years || null)
+      }
+      if (instagram !== undefined) {
+        actorUpdates.push("instagram = ?")
+        actorValues.push(instagram || null)
+      }
+      if (youtube !== undefined) {
+        actorUpdates.push("youtube = ?")
+        actorValues.push(youtube || null)
+      }
+      if (height_cm !== undefined) {
+        actorUpdates.push("height_cm = ?")
+        actorValues.push(height_cm || null)
+      }
+      if (weight_kg !== undefined) {
+        actorUpdates.push("weight_kg = ?")
+        actorValues.push(weight_kg || null)
+      }
+      if (audition_link !== undefined) {
+        actorUpdates.push("audition_link = ?")
+        actorValues.push(audition_link || null)
+      }
+      if (awards !== undefined) {
+        actorUpdates.push("awards = ?")
+        actorValues.push(awards || null)
+      }
+
+      if (actorUpdates.length > 0) {
+        if (existingActor.length > 0) {
+          // Update existing actor record
+          actorValues.push(userId)
+          await connection.execute(
+            `UPDATE actors SET ${actorUpdates.join(", ")} WHERE user_id = ?`,
+            actorValues
+          )
+        } else {
+          // Create new actor record
+          // IMPORTANT: user_id must be first in both fields and values
+          const actorFields = ["user_id", ...actorUpdates.map((u) => u.split(" = ")[0])]
+          const actorPlaceholders = actorFields.map(() => "?").join(", ")
+          // Put userId first in values array to match field order
+          const insertValues = [userId, ...actorValues]
+          await connection.execute(
+            `INSERT INTO actors (${actorFields.join(", ")}) VALUES (${actorPlaceholders})`,
+            insertValues
+          )
+        }
+      }
+    }
 
     connection.release()
 
-    res.json({ message: "Profile updated successfully" })
+    res.json({
+      status: true,
+      message: "Profile updated successfully",
+    })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.error("[Update Profile] Error:", error)
+    res.status(500).json({ status: false, error: error.message })
   }
 })
 
@@ -724,6 +1013,7 @@ router.get("/talents", async (req, res) => {
         u.name,
         u.location,
         u.user_type,
+        u.profile_image_url,
         a.category as actor_category,
         a.profession,
         t.specialization,
@@ -804,7 +1094,9 @@ router.get("/talents", async (req, res) => {
         role: talent.role || talent.user_type || "Actor",
         location: talent.location || "India",
         rating: ratingValue > 0 ? parseFloat(ratingValue.toFixed(1)) : 0,
-        image: `https://api.dicebear.com/7.x/adventurer/svg?seed=${talent.name || talent.id}`,
+        image:
+          talent.profile_image_url ||
+          `https://api.dicebear.com/7.x/adventurer/svg?seed=${talent.name || talent.id}`,
         is_featured: talent.is_featured === 1 || talent.is_featured === true
       }
     })
@@ -848,6 +1140,7 @@ router.post("/talents", async (req, res) => {
         u.name,
         u.location,
         u.user_type,
+        u.profile_image_url,
         a.category as actor_category,
         a.profession,
         t.specialization,
@@ -928,7 +1221,9 @@ router.post("/talents", async (req, res) => {
         role: talent.role || talent.user_type || "Actor",
         location: talent.location || "India",
         rating: ratingValue > 0 ? parseFloat(ratingValue.toFixed(1)) : 0,
-        image: `https://api.dicebear.com/7.x/adventurer/svg?seed=${talent.name || talent.id}`,
+        image:
+          talent.profile_image_url ||
+          `https://api.dicebear.com/7.x/adventurer/svg?seed=${talent.name || talent.id}`,
         is_featured: talent.is_featured === 1 || talent.is_featured === true
       }
     })
@@ -1048,6 +1343,13 @@ router.get("/dashboard", verifyToken, async (req, res) => {
 
       if (subscriptions.length > 0) {
         const sub = subscriptions[0]
+        
+        // Check if this is a lifetime plan
+        const isLifetime = 
+          sub.duration_days >= 36500 || 
+          sub.plan_id === 7 || 
+          (sub.name && sub.name.toLowerCase().includes('lifetime'))
+        
         // Format end_date properly
         let expiryDate = null
         if (sub.end_date) {
@@ -1067,7 +1369,18 @@ router.get("/dashboard", verifyToken, async (req, res) => {
           duration_days: sub.duration_days,
           features: typeof sub.features === 'string' ? sub.features : (sub.features ? JSON.stringify(sub.features) : "Premium Features"),
           expiry_date: expiryDate,
-          is_active: sub.is_active === 1 || sub.is_active === true
+          is_active: sub.is_active === 1 || sub.is_active === true,
+          is_lifetime: isLifetime
+        }
+        
+        // Add lifetime-specific details if it's a lifetime plan
+        if (isLifetime) {
+          plan.lifetime_details = {
+            is_lifetime: true,
+            duration: "Lifetime",
+            expiry_date: null, // Lifetime plans don't expire
+            message: "You have lifetime premium access"
+          }
         }
       }
     } catch (planError) {
@@ -1206,9 +1519,21 @@ router.get("/dashboard", verifyToken, async (req, res) => {
 
     connection.release()
 
+    // Get banners from S3
+    let bannerList = []
+    try {
+      bannerList = await getBannersFromS3()
+      console.log(`[Dashboard] Fetched ${bannerList.length} banners from S3`)
+    } catch (bannerError) {
+      console.error("[Dashboard] Error fetching banners:", bannerError.message)
+      // Return empty array on error, dashboard will still work without banners
+      bannerList = []
+    }
+
     res.json({
       status: 1,
       message: "Dashboard fetched successfully",
+      banner_list: bannerList,
       plan: plan,
       stats: stats,
       featured_talents: featuredTalents,

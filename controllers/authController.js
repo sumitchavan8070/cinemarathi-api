@@ -77,6 +77,40 @@ const register = async (req, res) => {
 
     const userId = result.insertId
 
+    // Assign role_id based on user_type
+    try {
+      // Get role_id from roles table based on user_type
+      const [roles] = await connection.execute(
+        "SELECT id FROM roles WHERE slug = ? AND is_active = 1 LIMIT 1",
+        [user_type.toLowerCase()]
+      )
+
+      if (roles.length > 0) {
+        // Update user with role_id
+        await connection.execute(
+          "UPDATE users SET role_id = ? WHERE id = ?",
+          [roles[0].id, userId]
+        )
+        console.log(`[Registration] Assigned role_id ${roles[0].id} (${user_type}) to user ${userId}`)
+      } else {
+        // If role not found, assign default 'user' role
+        const [defaultRole] = await connection.execute(
+          "SELECT id FROM roles WHERE slug = 'user' AND is_active = 1 LIMIT 1",
+          []
+        )
+        if (defaultRole.length > 0) {
+          await connection.execute(
+            "UPDATE users SET role_id = ? WHERE id = ?",
+            [defaultRole[0].id, userId]
+          )
+          console.log(`[Registration] Assigned default role_id ${defaultRole[0].id} (user) to user ${userId}`)
+        }
+      }
+    } catch (roleError) {
+      console.error("[Registration] Error assigning role:", roleError.message)
+      // Continue with registration even if role assignment fails
+    }
+
     // If user is an actor, create actor profile with skills and profession
     if (user_type === "actor") {
       try {
@@ -250,4 +284,73 @@ const login = async (req, res) => {
   }
 }
 
-module.exports = { register, login, generateToken }
+const changePassword = async (req, res) => {
+  try {
+    const { old_password, new_password } = req.body
+    const userId = req.user?.id
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+
+    if (!old_password || !new_password) {
+      return res.status(400).json({ error: "Old password and new password are required" })
+    }
+
+    if (new_password.length < 6) {
+      return res.status(400).json({ error: "New password must be at least 6 characters long" })
+    }
+
+    const connection = await pool.getConnection()
+
+    // Get current user's password
+    const [users] = await connection.execute(
+      "SELECT id, password_hash, password FROM users WHERE id = ?",
+      [userId]
+    )
+
+    if (users.length === 0) {
+      connection.release()
+      return res.status(404).json({ error: "User not found" })
+    }
+
+    const user = users[0]
+    
+    // Check for password in either 'password' or 'password_hash' column
+    const currentPasswordHash = user.password_hash || user.password
+    
+    if (!currentPasswordHash) {
+      connection.release()
+      return res.status(400).json({ error: "No password set for this account" })
+    }
+
+    // Verify old password
+    const isOldPasswordValid = await bcrypt.compare(old_password, currentPasswordHash)
+    
+    if (!isOldPasswordValid) {
+      connection.release()
+      return res.status(400).json({ error: "Old password is incorrect" })
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(new_password, 10)
+
+    // Update password in database
+    await connection.execute(
+      "UPDATE users SET password_hash = ? WHERE id = ?",
+      [hashedNewPassword, userId]
+    )
+
+    connection.release()
+
+    res.json({
+      status: 1,
+      message: "Password changed successfully",
+    })
+  } catch (error) {
+    console.error("[Change Password] Error:", error)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+module.exports = { register, login, generateToken, changePassword }

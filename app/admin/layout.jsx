@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
-import { BarChart3, Users, Film, CreditCard, Settings, LogOut, Menu, X, Crown } from "lucide-react"
+import { BarChart3, Users, Film, CreditCard, Settings, LogOut, Menu, X, Crown, Image, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Toaster } from "@/components/ui/sonner"
 import { verifyAdminToken, adminLogout } from "@/lib/admin-auth"
 
 const navItems = [
@@ -13,6 +14,8 @@ const navItems = [
   { href: "/admin/premium-users", label: "Premium Users", icon: Crown },
   { href: "/admin/casting", label: "Casting Calls", icon: Film },
   { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
+  { href: "/admin/banners", label: "App Banners", icon: Image },
+  { href: "/admin/roles", label: "Manage Roles", icon: Shield },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ]
 
@@ -261,9 +264,15 @@ export default function AdminLayout({ children }) {
         {/* Content Area */}
         <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
+      <Toaster />
     </div>
   )
 }
+
+
+
+
+
 
 
 

@@ -20,7 +20,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Search, Crown, Trash2, UserPlus, CheckCircle } from "lucide-react"
-import { apiGet, apiPut, apiDelete } from "@/lib/api"
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api"
 import { getAdminToken } from "@/lib/admin-auth"
 
 export default function PremiumUsersPage() {
